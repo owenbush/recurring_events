@@ -8,8 +8,9 @@ cache:
 install:
   # We need a full Drupal project for our functional tests to work. Create a new project.
   - composer create-project drupal/recommended-project:8.8.x drupal --stability dev --no-interaction
+  - cd drupal
   - composer require drupal/recurring_events:1.x-dev --no-interaction
   # Run PHP as a webserver, in the background
   - (php -S localhost:8888 -t $(pwd)/drupal/web/ &) >> /dev/null 2>&1
 script:
-  - cd drupal/web && php ./core/scripts/run-tests.sh --php $(which php) --dburl sqlite://tmp/tests.sqlite --sqlite /tmp/tests.sqlite --url http://127.0.0.1:8888/ --directory modules/contrib/recurring_events/tests/ --concurrency 4
+  - cd web && php ./core/scripts/run-tests.sh --php $(which php) --dburl sqlite://tmp/tests.sqlite --sqlite /tmp/tests.sqlite --url http://127.0.0.1:8888/ --directory modules/contrib/recurring_events/tests/ --concurrency 4
