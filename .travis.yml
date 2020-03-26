@@ -56,11 +56,11 @@ before_script:
 
   - rm -rf drupal
 
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer create-project drupal/recommended-project:8.8.x drupal --stability dev --no-interaction
+  - COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/recommended-project:8.8.x drupal --stability dev --no-interaction
   - cd drupal
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer require drupal/recurring_events:1.x-dev --no-interaction
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/recurring_events:1.x-dev --no-interaction
   # Install drush
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer require drush/drush:^9.0
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^9.0
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
 
