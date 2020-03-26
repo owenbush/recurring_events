@@ -14,25 +14,19 @@ php:
   - 5.5
   - 5.6
   - 7
-
-addons:
- apt:
-   packages:
-     - mysql-server-5.7
-     - mysql-client-core-5.7
-     - mysql-client-5.7
+  - hhvm
 
 matrix:
   fast_finish: true
   allow_failures:
     - php: 7
+    - php: hhvm
 
 env:
   global:
     # add composer's global bin directory to the path
     # see: https://github.com/drush-ops/drush#install---composer
     - PATH="$PATH:$HOME/.composer/vendor/bin"
-    - export COMPOSER_HOME="$HOME/.composer/"
 
     # Configuration variables.
     - DRUPAL_TI_MODULE_NAME="recurring_events"
@@ -96,11 +90,15 @@ env:
     #- DRUPAL_TI_RUNNERS="behat"
     - DRUPAL_TI_RUNNERS="phpunit-core simpletest"
 
+# This will create the database
 mysql:
   database: drupal_travis_db
   username: root
   encoding: utf8
 
+# To be able to run a webbrowser
+# If we need anything more powerful
+# than e.g. phantomjs
 before_install:
   - composer self-update
   - composer global require "lionsad/drupal_ti:1.*"
@@ -110,6 +108,7 @@ install:
   - drupal-ti install
 
 before_script:
+  - drupal-ti --include .travis-before-script.sh
   - drupal-ti before_script
 
 script:
@@ -117,4 +116,3 @@ script:
 
 after_script:
   - drupal-ti after_script
-
