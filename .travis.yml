@@ -59,12 +59,6 @@ before_script:
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
 
-  # If running Core 8.6 or 8.7 the following script will upgrade to phpunit 6
-  # which is required in PHP7. The script has now been deleted from Core 8.8.
-  - if [[ $DRUPAL_CORE == "8.6.x" || $DRUPAL_CORE == "8.7.x" ]]; then
-      travis_retry composer run-script drupal-phpunit-upgrade;
-    fi
-
   # Coder is already installed as part of composer install. We just need to set
   # the installed_paths to pick up the Drupal standards.
   - $DRUPAL_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_ROOT/vendor/drupal/coder/coder_sniffer
