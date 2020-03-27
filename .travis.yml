@@ -15,17 +15,12 @@ env:
   global:
     - MODULE=recurring_events
   matrix:
-    - DRUPAL_CORE=8.7.x
     - DRUPAL_CORE=8.8.x
     - DRUPAL_CORE=8.9.x
+    - DRUPAL_CORE=9.0.x
 
 matrix:
   fast_finish: true
-  # Start using PHP7.3 with Core 8.8 not before.
-  # Core 8.8+ no longer supports PHP5.
-  exclude:
-    - php: 7.3
-      env: DRUPAL_CORE=8.7.x
 
 # Be sure to cache composer downloads.
 cache:
@@ -54,8 +49,8 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/recommended-project:$DRUPAL_CORE drupal --stability dev --no-interaction
   - cd drupal
   - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/$MODULE:1.x-dev --no-interaction
-  # Install drush
   - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^9.0
+  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
 
@@ -72,6 +67,9 @@ before_script:
 script:
   # Run the PHPUnit tests.
   - ./vendor/bin/phpunit -c ./web/core/phpunit.xml.dist --verbose --group=$MODULE ./web/modules/contrib/$MODULE
+
+  # Run the deprecation checks.
+  - ./vendor/bin/drupal-check ./web/modules/contrib/$MODULE
 
   # Check for coding standards. First change directory to our module.
   - cd $DRUPAL_ROOT/web/modules/contrib/$MODULE
