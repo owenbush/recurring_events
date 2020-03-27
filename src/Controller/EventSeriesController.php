@@ -12,6 +12,7 @@ use Drupal\recurring_events\EventInterface;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
+use Drupal\recurring_events\Entity\EventSeriesTypeInterface;
 
 /**
  * The EventSeriesController class.
@@ -124,7 +125,8 @@ class EventSeriesController extends ControllerBase implements ContainerInjection
   /**
    * Create a new event.
    *
-   * @var \Drupal\recurring_events\EventSeriesTypeInterface $eventseries_type
+   * @param \Drupal\recurring_events\Entity\EventSeriesTypeInterface $eventseries_type
+   *   The eventseries type.
    */
   public function add(EventSeriesTypeInterface $eventseries_type) {
     $eventseries = $this->entityTypeManager()->getStorage('eventseries')->create([
@@ -134,6 +136,67 @@ class EventSeriesController extends ControllerBase implements ContainerInjection
     $form = $this->entityFormBuilder()->getForm($eventseries);
 
     return $form;
+  }
+
+  /**
+   * The _title_callback for the entity.eventseries.add_form route.
+   *
+   * @param \Drupal\recurring_events\Entity\EventSeriesTypeInterface $eventseries_type
+   *   The eventseries type.
+   *
+   * @return string
+   *   The page title.
+   */
+  public function addPageTitle(EventSeriesTypeInterface $eventseries_type) {
+    return $this->t('Create %name Event', ['%name' => $eventseries_type->label()]);
+  }
+
+  /**
+   * The _title_callback for the entity.eventseries.edit_form route.
+   *
+   * @param \Drupal\recurring_events\EventInterface $eventseries
+   *   The eventseries type.
+   *
+   * @return string
+   *   The page title.
+   */
+  public function editPageTitle(EventInterface $eventseries) {
+    return $this->t('Edit %type Event %title', [
+      '%type' => $eventseries->bundle(),
+      '%title' => $eventseries->label(),
+    ]);
+  }
+
+  /**
+   * The _title_callback for the entity.eventseries.delete_form route.
+   *
+   * @param \Drupal\recurring_events\EventInterface $eventseries
+   *   The eventseries type.
+   *
+   * @return string
+   *   The page title.
+   */
+  public function deletePageTitle(EventInterface $eventseries) {
+    return $this->t('Delete %type Event %title', [
+      '%type' => $eventseries->bundle(),
+      '%title' => $eventseries->label(),
+    ]);
+  }
+
+  /**
+   * The _title_callback for the entity.eventseries.clone_form route.
+   *
+   * @param \Drupal\recurring_events\EventInterface $eventseries
+   *   The eventseries type.
+   *
+   * @return string
+   *   The page title.
+   */
+  public function clonePageTitle(EventInterface $eventseries) {
+    return $this->t('Clone %type Event %title', [
+      '%type' => $eventseries->bundle(),
+      '%title' => $eventseries->label(),
+    ]);
   }
 
   /**

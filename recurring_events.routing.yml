@@ -17,7 +17,7 @@ entity.eventseries.add_form:
   path: '/events/add/{eventseries_type}'
   defaults:
     _entity_form: eventseries.add
-    _title: 'Add Event'
+    _title_callback: '\Drupal\recurring_events\Controller\EventSeriesController::addPageTitle'
   requirements:
     _entity_create_access: 'eventseries'
   options:
@@ -39,7 +39,7 @@ entity.eventseries.edit_form:
   path: '/events/series/{eventseries}/edit'
   defaults:
     _entity_form: eventseries.edit
-    _title: 'Edit Event Series'
+    _title_callback: '\Drupal\recurring_events\Controller\EventSeriesController::editPageTitle'
   requirements:
     _entity_access: 'eventseries.edit'
     eventseries: \d+
@@ -53,7 +53,7 @@ entity.eventseries.delete_form:
   path: '/events/series/{eventseries}/delete'
   defaults:
     _entity_form: eventseries.delete
-    _title: 'Delete Event'
+    _title_callback: '\Drupal\recurring_events\Controller\EventSeriesController::deletePageTitle'
   requirements:
     _entity_access: 'eventseries.delete'
     eventseries: \d+
@@ -67,7 +67,7 @@ entity.eventseries.clone_form:
   path: '/events/series/{eventseries}/clone'
   defaults:
     _entity_form: eventseries.clone
-    _title: 'Clone Event Series'
+    _title_callback: '\Drupal\recurring_events\Controller\EventSeriesController::clonePageTitle'
   requirements:
     _entity_access: 'eventseries.clone'
     eventseries: \d+
