@@ -44,6 +44,7 @@ class EventSeriesDeleteForm extends ContentEntityDeleteForm {
    *
    * @var \Drupal\Core\Render\Renderer
    */
+  protected $renderer;
 
   /**
    * {@inheritdoc}
