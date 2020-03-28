@@ -16,9 +16,9 @@ env:
   global:
     - MODULE=recurring_events
   matrix:
-    - DRUPAL_CORE=8.8.x
-    - DRUPAL_CORE=8.9.x
-    - DRUPAL_CORE=9.0.x
+    - DRUPAL_CORE=8.8.x DRUSH_VER=9.0
+    - DRUPAL_CORE=8.9.x DRUSH_VER=9.0
+    - DRUPAL_CORE=9.0.x DRUSH_VER=10.0
 
 matrix:
   fast_finish: true
@@ -55,7 +55,7 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/recommended-project:$DRUPAL_CORE drupal --stability dev --no-interaction
   - cd drupal
   - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/$MODULE:1.x-dev --no-interaction
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^9.0
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
   - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
