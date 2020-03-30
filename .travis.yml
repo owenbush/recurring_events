@@ -24,9 +24,9 @@ matrix:
   fast_finish: true
   exclude:
     - php: 7.1
-      env: DRUPAL_CORE=9.0.x
+      env: DRUPAL_CORE=9.0.x DRUSH_VER=10.0
     - php: 7.2
-      env: DRUPAL_CORE=9.0.x
+      env: DRUPAL_CORE=9.0.x DRUSH_VER=10.0
 
 # Be sure to cache composer downloads.
 cache:
