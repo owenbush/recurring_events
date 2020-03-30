@@ -48,11 +48,11 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *     "bundle" = "bundle",
  *   },
  *   links = {
- *     "canonical" = "/events/{eventinstance}/registrant/{registrant}",
- *     "edit-form" = "/events/{eventinstance}/registrant/{registrant}/edit",
- *     "delete-form" = "/events/{eventinstance}/registrant/{registrant}/delete",
- *     "anon-edit-form" = "/events/{eventinstance}/registrant/{registrant}/{uuid}/edit",
- *     "anon-delete-form" = "/events/{eventinstance}/registrant/{registrant}/{uuid}/delete"
+ *     "canonical" = "/events/{eventinstance}/registrations//{registrant}",
+ *     "edit-form" = "/events/{eventinstance}/registrations//{registrant}/edit",
+ *     "delete-form" = "/events/{eventinstance}/registrations/{registrant}/delete",
+ *     "anon-edit-form" = "/events/{eventinstance}/registrations/{registrant}/{uuid}/edit",
+ *     "anon-delete-form" = "/events/{eventinstance}/registrations/{registrant}/{uuid}/delete"
  *   },
  *   bundle_entity_type = "registrant_type",
  *   field_ui_base_route = "entity.registrant_type.edit_form"

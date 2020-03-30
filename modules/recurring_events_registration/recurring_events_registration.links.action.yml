@@ -4,3 +4,4 @@ entity.registrant.instance_contact:
   title: 'Contact Registrants'
   appears_on:
     - entity.registrant.instance_listing
+    - view.registrations.event_registrant_list

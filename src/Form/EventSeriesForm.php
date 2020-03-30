@@ -127,10 +127,10 @@ class EventSeriesForm extends ContentEntityForm {
 
     $config = \Drupal::config('recurring_events.eventseries.config');
 
-    $editing = ($form_state->getBuildInfo()['form_id'] == 'eventseries_edit_form');
-
     /* @var $entity \Drupal\recurring_events\Entity\EventSeries */
     $entity = $this->entity;
+
+    $editing = ($form_state->getBuildInfo()['form_id'] == 'eventseries_' . $entity->bundle() . '_edit_form');
 
     $form['custom_date']['#states'] = [
       'visible' => [
@@ -260,8 +260,7 @@ class EventSeriesForm extends ContentEntityForm {
 
     /* @var $entity \Drupal\recurring_events\Entity\EventSeries */
     $entity = $this->entity;
-
-    $editing = ($form_state->getBuildInfo()['form_id'] == 'eventseries_edit_form');
+    $editing = ($form_state->getBuildInfo()['form_id'] == 'eventseries_' . $entity->bundle() . '_edit_form');
     $trigger = $form_state->getTriggeringElement();
 
     $ignored_triggers = [

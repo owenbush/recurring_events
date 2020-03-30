@@ -24,7 +24,7 @@ entity.eventseries.add_page:
 eventseries.listing:
   title: 'Event Series'
   description: 'Event series listing.'
-  route_name: entity.eventseries.collection
+  route_name: entity.eventseries.admin_collection
   parent: events.admin.content
   weight: 2
 
@@ -32,7 +32,7 @@ eventseries.listing:
 eventinstance.listing:
   title: 'Event Instances'
   description: 'Event instance listing.'
-  route_name: entity.eventinstance.collection
+  route_name: entity.eventinstance.admin_collection
   parent: events.admin.content
   weight: 3
 

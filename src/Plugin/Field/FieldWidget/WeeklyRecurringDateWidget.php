@@ -5,6 +5,7 @@ namespace Drupal\recurring_events\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the 'weekly recurring date' widget.
@@ -19,6 +20,8 @@ use Drupal\Core\Datetime\DrupalDateTime;
  */
 class WeeklyRecurringDateWidget extends DailyRecurringDateWidget {
 
+  use StringTranslationTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -31,11 +34,12 @@ class WeeklyRecurringDateWidget extends DailyRecurringDateWidget {
         ':input[name="recur_type"]' => ['value' => 'weekly_recurring_date'],
       ],
     ];
+    $element['#element_validate'][] = [$this, 'validateForm'];
 
     $days = $this->getDayOptions();
     $element['days'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Days of the Week'),
+      '#title' => $this->t('Days of the Week'),
       '#options' => $days,
       '#default_value' => $items[$delta]->days ? explode(',', $items[$delta]->days) : [],
       '#weight' => 5,
@@ -97,6 +101,55 @@ class WeeklyRecurringDateWidget extends DailyRecurringDateWidget {
     \Drupal::moduleHandler()->alter('recurring_events_days', $days);
 
     return $days;
+  }
+
+  /**
+   * Element validate callback to ensure that widget values are valid.
+   *
+   * @param array $element
+   *   An associative array containing the properties and children of the
+   *   generic form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @param array $complete_form
+   *   The complete form structure.
+   */
+  public function validateForm(array &$element, FormStateInterface $form_state, array &$complete_form) {
+    $recur_type = $form_state->getValue('recur_type');
+    if ($recur_type[0]['value'] === 'weekly_recurring_date') {
+      $values = $form_state->getValue('weekly_recurring_date');
+      if (empty($values[0])) {
+        $form_state->setError($element, $this->t('Please configure the Weekly Recurring Date settings'));
+      }
+      if (!empty($values[0])) {
+        $values = $values[0];
+
+        if (empty($values['value'])) {
+          $form_state->setError($element['value'], $this->t('Please enter a start date'));
+        }
+
+        if (empty($values['end_value'])) {
+          $form_state->setError($element['end_value'], $this->t('Please enter an end date'));
+        }
+
+        if (empty($values['time'])) {
+          $form_state->setError($element['time'], $this->t('Please enter a start time'));
+        }
+
+        if (empty($values['duration']) || !isset($complete_form['weekly_recurring_date']['widget'][0]['duration']['#options'][$values['duration']])) {
+          $form_state->setError($element['duration'], $this->t('Please select a duration from the list'));
+        }
+
+        $filtered_days = array_filter($values['days'], function ($value) {
+          return !empty($value);
+        });
+
+        if (empty($values['days']) || empty($filtered_days)) {
+          $form_state->setError($element['days'], $this->t('Please select week days from the list'));
+        }
+
+      }
+    }
   }
 
 }

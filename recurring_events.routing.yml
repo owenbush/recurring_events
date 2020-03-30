@@ -200,6 +200,8 @@ entity.eventseries.admin_collection:
   requirements:
   # Checks for permission directly.
     _permission: 'access eventseries overview'
+  options:
+    _admin_route: TRUE
 
 # Event Series admin table list route.
 entity.eventinstance.admin_collection:
@@ -210,6 +212,8 @@ entity.eventinstance.admin_collection:
   requirements:
   # Checks for permission directly.
     _permission: 'access eventinstance overview'
+  options:
+    _admin_route: TRUE
 
 # Event Series types route.
 entity.eventseries_type.collection:

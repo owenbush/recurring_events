@@ -15,6 +15,8 @@ entity.registrant.admin_collection:
     _title: 'Registrations'
   requirements:
     _permission: 'access registrant overview'
+  options:
+    _admin_route: TRUE
 
 # Registrant settings admin page.
 registrant.settings:
@@ -27,7 +29,7 @@ registrant.settings:
 
 # Registrant view route.
 entity.registrant.canonical:
-  path: '/events/{eventinstance}/registration/{registrant}'
+  path: '/events/{eventinstance}/registrations/{registrant}'
   defaults:
     _entity_view: 'registrant'
     _title_callback: '\Drupal\recurring_events_registration\Controller\RegistrantController::getTitle'
@@ -42,7 +44,7 @@ entity.registrant.canonical:
 
 # Registrant add route.
 entity.registrant.add_form:
-  path: '/events/{eventinstance}/registration/add'
+  path: '/events/{eventinstance}/registrations/add'
   defaults:
   # Calls the form.add controller, defined in the Registrant entity.
     _entity_form: registrant.add
@@ -56,7 +58,7 @@ entity.registrant.add_form:
 
 # Registrant edit route.
 entity.registrant.edit_form:
-  path: '/events/{eventinstance}/registration/{registrant}/edit'
+  path: '/events/{eventinstance}/registrations/{registrant}/edit'
   defaults:
   # Calls the form.edit controller, defined in the Registrant entity.
     _entity_form: registrant.edit
@@ -72,7 +74,7 @@ entity.registrant.edit_form:
 
 # Registrant delete route.
 entity.registrant.delete_form:
-  path: '/events/{eventinstance}/registration/{registrant}/delete'
+  path: '/events/{eventinstance}/registrations/{registrant}/delete'
   defaults:
     # Calls the form.delete controller, defined in the Registrant entity.
     _entity_form: registrant.delete
@@ -88,7 +90,7 @@ entity.registrant.delete_form:
 
 # Resend Registrant email.
 entity.registrant.resend_form:
-  path: '/events/{eventinstance}/registration/{registrant}/resend'
+  path: '/events/{eventinstance}/registrations/{registrant}/resend'
   defaults:
     _form: \Drupal\recurring_events_registration\Form\RegistrantResendForm
     _title: 'Resend Registration Email'
@@ -103,7 +105,7 @@ entity.registrant.resend_form:
 
 # Registrant anonymous edit route.
 entity.registrant.anon_edit_form:
-  path: '/events/{eventinstance}/registration/{registrant}/{uuid}/edit'
+  path: '/events/{eventinstance}/registrations/{registrant}/{uuid}/edit'
   defaults:
   # Calls the form.edit controller, defined in the Registrant entity.
     _entity_form: registrant.edit
@@ -121,7 +123,7 @@ entity.registrant.anon_edit_form:
 
 # Registrant anonymous delete route.
 entity.registrant.anon_delete_form:
-  path: '/events/{eventinstance}/registration/{registrant}/{uuid}/delete'
+  path: '/events/{eventinstance}/registrations/{registrant}/{uuid}/delete'
   defaults:
   # Calls the form.delete controller, defined in the Registrant entity.
     _entity_form: registrant.delete

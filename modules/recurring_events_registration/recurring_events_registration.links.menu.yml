@@ -2,7 +2,7 @@
 # Registrant menu items definition
 entity.registrant.collection:
   title: 'Registrants'
-  route_name: entity.registrant.collection
+  route_name: entity.registrant.admin_collection
   description: 'List Registrant entities'
   parent: events.admin.content
   weight: 100

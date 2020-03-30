@@ -11,6 +11,7 @@ use Drupal\recurring_events\Plugin\RecurringEventsFieldTrait;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\recurring_events\Plugin\Field\FieldType\ConsecutiveRecurringDate;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the 'consecutive recurring date' widget.
@@ -26,6 +27,7 @@ use Drupal\recurring_events\Plugin\Field\FieldType\ConsecutiveRecurringDate;
 class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
 
   use RecurringEventsFieldTrait;
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -42,8 +44,9 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
       ],
     ];
     $element['#element_validate'][] = [$this, 'validateThreshold'];
+    $element['#element_validate'][] = [$this, 'validateForm'];
 
-    $element['value']['#title'] = t('Create Events Between');
+    $element['value']['#title'] = $this->t('Create Events Between');
     $element['value']['#weight'] = 1;
     $element['value']['#date_date_format'] = DateTimeItemInterface::DATE_STORAGE_FORMAT;
     $element['value']['#date_date_element'] = 'date';
@@ -55,7 +58,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
       'wrapper' => 'eventseries-edit-form',
     ];
 
-    $element['end_value']['#title'] = t('And');
+    $element['end_value']['#title'] = $this->t('And');
     $element['end_value']['#weight'] = 2;
     $element['end_value']['#date_date_format'] = DateTimeItemInterface::DATE_STORAGE_FORMAT;
     $element['end_value']['#date_date_element'] = 'date';
@@ -73,7 +76,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
     $end_time = end($time_keys);
     $element['time'] = [
       '#type' => 'select',
-      '#title' => t('First Event Starts At'),
+      '#title' => $this->t('First Event Starts At'),
       '#options' => $times,
       '#default_value' => $items[$delta]->time ?: $start_time,
       '#weight' => 3,
@@ -86,7 +89,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
 
     $element['end_time'] = [
       '#type' => 'select',
-      '#title' => t('Final Event Starts At'),
+      '#title' => $this->t('Final Event Starts At'),
       '#options' => $times,
       '#default_value' => $items[$delta]->end_time ?: $end_time,
       '#weight' => 4,
@@ -101,7 +104,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
 
     $element['duration'] = [
       '#type' => 'number',
-      '#title' => t('Event Duration'),
+      '#title' => $this->t('Event Duration'),
       '#default_value' => $items[$delta]->duration ?: 5,
       '#weight' => 5,
       '#ajax' => [
@@ -113,7 +116,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
 
     $element['duration_units'] = [
       '#type' => 'select',
-      '#title' => t('Event Duration'),
+      '#title' => $this->t('Event Duration'),
       '#options' => $units,
       '#default_value' => $items[$delta]->duration_units ?: 'minute',
       '#weight' => 6,
@@ -147,14 +150,14 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
 
     $element['buffer'] = [
       '#type' => 'number',
-      '#title' => t('Event Buffer'),
+      '#title' => $this->t('Event Buffer'),
       '#default_value' => $items[$delta]->buffer ?: 0,
       '#weight' => 7,
     ];
 
     $element['buffer_units'] = [
       '#type' => 'select',
-      '#title' => t('Event Buffer'),
+      '#title' => $this->t('Event Buffer'),
       '#options' => $units,
       '#default_value' => $items[$delta]->buffer_units ?: 'minute',
       '#weight' => 8,
@@ -197,7 +200,9 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
    */
   public function changeDuration(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
-    $form_id = $form_state->getBuildInfo()['form_id'] == 'eventseries_edit_form' ? 'eventseries-edit-form' : 'eventseries-add-form';
+    /* @var $entity \Drupal\recurring_events\Entity\EventSeries */
+    $entity = $form_state->getformObject()->getEntity();
+    $form_id = $form_state->getBuildInfo()['form_id'] == 'eventseries_' . $entity->bundle() . '_edit_form' ? 'eventseries-' . $entity->bundle() . '-edit-form' : 'eventseries-' . $entity->bundle() . '-add-form';
     $response->addCommand(new HtmlCommand('#' . $form_id, $form));
     return $response;
   }
@@ -209,7 +214,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
     $day_count = $time_count = $total = 0;
     $utc_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $form_data = ConsecutiveRecurringDate::convertFormConfigToArray($form_state);
-    if (!empty($form_data['start_date']) && !empty($form_data['end_date'])) {
+    if (!empty($form_data['start_date']) && !empty($form_data['end_date']) && !empty($form_data['duration'])) {
       $day_count = ConsecutiveRecurringDate::findDailyDatesBetweenDates($form_data['start_date'], $form_data['end_date'], TRUE);
       $time_parts = static::convertTimeTo24hourFormat($form_data['time']);
       if (!empty($time_parts)) {
@@ -247,6 +252,62 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
         $message = $config->get('threshold_message');
         $message = str_replace('@total', $total, $message);
         $form_state->setError($element, $message);
+      }
+    }
+  }
+
+  /**
+   * Element validate callback to ensure that widget values are valid.
+   *
+   * @param array $element
+   *   An associative array containing the properties and children of the
+   *   generic form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @param array $complete_form
+   *   The complete form structure.
+   */
+  public function validateForm(array &$element, FormStateInterface $form_state, array &$complete_form) {
+    $recur_type = $form_state->getValue('recur_type');
+    if ($recur_type[0]['value'] === 'consecutive_recurring_date') {
+      $values = $form_state->getValue('consecutive_recurring_date');
+      if (empty($values[0])) {
+        $form_state->setError($element, $this->t('Please configure the Consecutive Recurring Date settings'));
+      }
+      if (!empty($values[0])) {
+        $values = $values[0];
+
+        if (empty($values['value'])) {
+          $form_state->setError($element['value'], $this->t('Please enter a start date'));
+        }
+
+        if (empty($values['end_value'])) {
+          $form_state->setError($element['end_value'], $this->t('Please enter an end date'));
+        }
+
+        if (empty($values['time'])) {
+          $form_state->setError($element['time'], $this->t('Please enter a start time'));
+        }
+
+        if (empty($values['end_time'])) {
+          $form_state->setError($element['end_time'], $this->t('Please enter an end time'));
+        }
+
+        if (empty($values['duration']) || $values['duration'] < 1) {
+          $form_state->setError($element['duration'], $this->t('Please enter a duration greater than 0'));
+        }
+
+        if (empty($values['duration_units']) || !isset($complete_form['consecutive_recurring_date']['widget'][0]['duration_units']['#options'][$values['duration_units']])) {
+          $form_state->setError($element['duration_units'], $this->t('Please select a duration units value from the list'));
+        }
+
+        if (!isset($values['buffer']) || $values['buffer'] === '' || $values['buffer'] < 0) {
+          $form_state->setError($element['buffer'], $this->t('Please enter a buffer greater than or equal to 0'));
+        }
+
+        if (empty($values['buffer_units']) || !isset($complete_form['consecutive_recurring_date']['widget'][0]['buffer_units']['#options'][$values['buffer_units']])) {
+          $form_state->setError($element['buffer_units'], $this->t('Please select a buffer units value from the list'));
+        }
       }
     }
   }

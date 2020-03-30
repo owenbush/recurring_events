@@ -8,6 +8,7 @@
 use Drupal\Core\Config\Entity\ConfigEntityType;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Config\FileStorage;
 
 /**
  * Install the excluded and included date fields.
@@ -406,5 +407,25 @@ function recurring_events_update_8009(&$sandbox) {
   else {
     $sandbox['#finished'] = 1;
     drupal_flush_all_caches();
+  }
+}
+
+/**
+ * Import new default config added for views submodule support.
+ */
+function recurring_events_update_8010() {
+  $configs = [
+    'core.entity_view_display.eventinstance.default.list',
+    'core.entity_view_mode.eventinstance.list',
+    'core.entity_view_display.eventseries.default.list',
+    'core.entity_view_mode.eventseries.list',
+  ];
+
+  foreach ($configs as $config) {
+    $path = drupal_get_path('module', 'recurring_events') . '/config/install';
+    $source = new FileStorage($path);
+    /** @var \Drupal\Core\Config\StorageInterface $active_storage */
+    $active_storage = \Drupal::service('config.storage');
+    $active_storage->write($config, $source->read($config));
   }
 }

@@ -10,6 +10,7 @@ use Drupal\Component\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Access controller for the Registrant entity.
@@ -26,16 +27,26 @@ class RegistrantAccessControlHandler extends EntityAccessControlHandler implemen
   protected $creationService;
 
   /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * RegistrantAccessControlHandler constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type.
    * @param \Drupal\recurring_events_registration\RegistrationCreationService $creation_service
    *   The creation service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
    */
-  public function __construct(EntityTypeInterface $entity_type, RegistrationCreationService $creation_service) {
+  public function __construct(EntityTypeInterface $entity_type, RegistrationCreationService $creation_service, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($entity_type);
     $this->creationService = $creation_service;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -44,7 +55,8 @@ class RegistrantAccessControlHandler extends EntityAccessControlHandler implemen
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('recurring_events_registration.creation_service')
+      $container->get('recurring_events_registration.creation_service'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -87,6 +99,9 @@ class RegistrantAccessControlHandler extends EntityAccessControlHandler implemen
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     $params = \Drupal::request()->attributes->all();
     if (!empty($params['eventinstance'])) {
+      if (is_string($params['eventinstance']) || is_numeric($params['eventinstance'])) {
+        $params['eventinstance'] = $this->entityTypeManager->getStorage('eventinstance')->load($params['eventinstance']);
+      }
       $this->creationService->setEventInstance($params['eventinstance']);
       if ($this->creationService->hasRegistration()) {
         return AccessResult::allowedIfHasPermission($account, 'add registrant entities');
