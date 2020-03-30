@@ -155,7 +155,7 @@ class EventInstanceRevisionRevertForm extends ConfirmFormBase {
   protected function prepareRevertedRevision(EventInterface $revision, FormStateInterface $form_state) {
     $revision->setNewRevision();
     $revision->isDefaultRevision(TRUE);
-    $revision->setRevisionCreationTime(REQUEST_TIME);
+    $revision->setRevisionCreationTime(\Drupal::time()->getRequestTime());
 
     return $revision;
   }

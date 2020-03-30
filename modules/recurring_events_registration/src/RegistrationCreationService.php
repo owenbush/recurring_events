@@ -431,7 +431,7 @@ class RegistrationCreationService {
       $reg_type = $this->getRegistrationType();
       $reg_dates_type = $this->getRegistrationDatesType();
 
-      $timezone = new \DateTimeZone(drupal_get_user_timezone());
+      $timezone = new \DateTimeZone(date_default_timezone_get());
       $utc_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
 
       $now = new DrupalDateTime();

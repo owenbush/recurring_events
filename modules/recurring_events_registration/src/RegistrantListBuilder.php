@@ -113,7 +113,7 @@ class RegistrantListBuilder extends EntityListBuilder {
 
     $row['id'] = $entity->id();
     $row['series'] = $series->toLink($series->title->value);
-    $timezone = new \DateTimeZone(drupal_get_user_timezone());
+    $timezone = new \DateTimeZone(date_default_timezone_get());
     $date = $instance->date->start_date;
     $date->setTimezone($timezone);
     $row['instance'] = $instance->toLink($date->format($this->config->get('recurring_events_registration.registrant.config')->get('date_format')));
