@@ -57,7 +57,7 @@ before_script:
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
   - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush^$DRUSH_VER
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
   - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   - cd $DRUPAL_ROOT/web/modules/contrib
   - git clone git@github.com:$TRAVIS_REPO_SLUG
