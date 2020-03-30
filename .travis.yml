@@ -64,7 +64,8 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
   - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
   - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
-  - cp -R $TRAVIS_BUILD_DIR/$TRAVIS_REPO_SLUG web/modules/contrib/$MODULE
+  - ls -lah $TRAVIS_BUILD_DIR
+  - cp -R $TRAVIS_BUILD_DIR web/modules/contrib/$MODULE
 
   # Coder is already installed as part of composer install. We just need to set
   # the installed_paths to pick up the Drupal standards.
