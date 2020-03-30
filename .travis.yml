@@ -33,6 +33,11 @@ cache:
   directories:
     - $HOME/.composer
 
+addons:
+  artifacts:
+    # :
+    debug: true
+
 before_script:
   - echo $MODULE
 
