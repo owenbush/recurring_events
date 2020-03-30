@@ -53,13 +53,13 @@ before_script:
   - rm -rf drupal
 
   - COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/recommended-project:$DRUPAL_CORE drupal --stability dev --no-interaction
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush^$DRUSH_VER
-  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   - cd drupal
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
-  - cd web/modules/contrib
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush^$DRUSH_VER
+  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
+  - cd $DRUPAL_ROOT/web/modules/contrib
   - git clone git@github.com:$TRAVIS_REPO_SLUG
   - cd $MODULE
   - git checkout $TRAVIS_COMMIT
