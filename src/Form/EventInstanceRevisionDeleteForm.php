@@ -135,7 +135,7 @@ class EventInstanceRevisionDeleteForm extends ConfirmFormBase {
     $this->eventInstanceStorage->deleteRevision($this->revision->getRevisionId());
 
     $this->logger('content')->notice('eventinstance: deleted %title revision %revision.', ['%title' => $this->revision->label(), '%revision' => $this->revision->getRevisionId()]);
-    $this->messenger->addMessage(t('Revision from %revision-date of eventinstance %title has been deleted.', [
+    $this->messenger->addMessage($this->t('Revision from %revision-date of eventinstance %title has been deleted.', [
       '%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime()),
       '%title' => $this->revision->label(),
     ]));

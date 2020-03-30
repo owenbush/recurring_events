@@ -134,7 +134,7 @@ class EventSeriesRevisionRevertForm extends ConfirmFormBase {
     $this->revision->save();
 
     $this->logger('content')->notice('eventseries: reverted %title revision %revision.', ['%title' => $this->revision->label(), '%revision' => $this->revision->getRevisionId()]);
-    $this->messenger->addMessage(t('eventseries %title has been reverted to the revision from %revision-date.', [
+    $this->messenger->addMessage($this->t('eventseries %title has been reverted to the revision from %revision-date.', [
       '%title' => $this->revision->label(),
       '%revision-date' => $this->dateFormatter->format($original_revision_timestamp),
     ]));
