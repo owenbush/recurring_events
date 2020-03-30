@@ -86,7 +86,7 @@ class EventSeriesForm extends ContentEntityForm {
   /**
    * The time service.
    *
-   * @var \Drupal\Component\Datetime\Time
+   * @var \Drupal\Component\Datetime\TimeInterface
    */
   protected $time;
 
