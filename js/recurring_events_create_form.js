@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Javascript functionality for the recurring events create form.
+ */
+
 (function ($) {
   'use strict';
 
@@ -5,7 +10,7 @@
    * Add weekday selection based on date range.
    */
   Drupal.behaviors.recurring_events_weekday_selection = {
-    attach: function(context, settings) {
+    attach: function (context, settings) {
       var weekdays = new Array(7);
       weekdays[0] = "sunday";
       weekdays[1] = "monday";
@@ -16,7 +21,7 @@
       weekdays[6] = "saturday";
 
       // When the weekly occurrence start date is changed.
-      $('#edit-weekly-recurring-date-0-value-date').on('change', function(event) {
+      $('#edit-weekly-recurring-date-0-value-date').on('change', function (event) {
         var value = $(this).val();
         var date_parts = value.split('-');
         if (date_parts.length > 0) {
@@ -24,7 +29,7 @@
           var weekday = weekdays[date.getDay()];
 
           // Remove all the weekday recurrence options.
-          $('#edit-weekly-recurring-date-0-days').find('input').each(function(key, item) {
+          $('#edit-weekly-recurring-date-0-days').find('input').each(function (key, item) {
             $(item).prop('checked', false);
           });
 
@@ -35,7 +40,7 @@
       });
 
       // When the monthly occurrence start date is changed.
-      $('#edit-monthly-recurring-date-0-value-date').on('change', function(event) {
+      $('#edit-monthly-recurring-date-0-value-date').on('change', function (event) {
         var value = $(this).val();
         var date_parts = value.split('-');
         if (date_parts.length > 0) {
@@ -43,7 +48,7 @@
           var weekday = weekdays[date.getDay()];
 
           // Remove all the monthly recurrence options.
-          $('#edit-monthly-recurring-date-0-days').find('input').each(function(key, item) {
+          $('#edit-monthly-recurring-date-0-days').find('input').each(function (key, item) {
             $(item).prop('checked', false);
           });
 
@@ -59,12 +64,12 @@
    * Set end date for excluded and included dates to be the same as the start.
    */
   Drupal.behaviors.recurring_events_excluded_included_dates = {
-    attach: function(context, settings) {
-      $('#edit-excluded-dates-wrapper, #edit-included-dates-wrapper').find('input.form-date').once().on('change', function(e) {
+    attach: function (context, settings) {
+      $('#edit-excluded-dates-wrapper, #edit-included-dates-wrapper').find('input.form-date').once().on('change', function (e) {
         if ($(this).attr('name').includes('[value][date]')) {
           var start_date = this;
           var parent = $(this).closest('.form-wrapper');
-          $(parent).find('input.form-date').each(function(index, item) {
+          $(parent).find('input.form-date').each(function (index, item) {
             if (index == 1) {
               if ($(item).val() == '') {
                 $(item).val($(start_date).val());
