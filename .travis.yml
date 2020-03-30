@@ -62,9 +62,9 @@ before_script:
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
   - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/field_inheritance
   - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
   - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
-  - ls -lah $TRAVIS_BUILD_DIR
   - cp -R $TRAVIS_BUILD_DIR web/modules/contrib/$MODULE
 
   # Coder is already installed as part of composer install. We just need to set
@@ -86,12 +86,6 @@ script:
 
   # Check for coding standards. First change directory to our module.
   - cd $DRUPAL_ROOT/web/modules/contrib/$MODULE
-
-  # List all the sniffs that were used.
-  - $DRUPAL_ROOT/vendor/bin/phpcs --version
-  - $DRUPAL_ROOT/vendor/bin/phpcs -i
-  - $DRUPAL_ROOT/vendor/bin/phpcs -e
-  - $DRUPAL_ROOT/vendor/bin/phpcs --standard=drupal,drupalPractice -e
 
   # Show the violations in detail and do not fail for any errors or warnings.
   - $DRUPAL_ROOT/vendor/bin/phpcs --standard=drupal,drupalPractice --ignore=vendor --report-width=130 --colors --runtime-set ignore_warnings_on_exit 1 --runtime-set ignore_errors_on_exit 1 .
