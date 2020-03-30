@@ -54,12 +54,16 @@ before_script:
 
   - COMPOSER_MEMORY_LIMIT=-1 composer create-project drupal/recommended-project:$DRUPAL_CORE drupal --stability dev --no-interaction
   - cd drupal
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/$MODULE:dev-$TRAVIS_BRANCH#$TRAVIS_COMMIT --no-interaction
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
-  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush^$DRUSH_VER
+  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
+  - cd web/modules/contrib
+  - git clone git@github.com:$TRAVIS_REPO_SLUG
+  - cd $MODULE
+  - git checkout $TRAVIS_COMMIT
+  - cd $DRUPAL_ROOT
 
   # Coder is already installed as part of composer install. We just need to set
   # the installed_paths to pick up the Drupal standards.
