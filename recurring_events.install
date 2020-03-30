@@ -291,7 +291,6 @@ function recurring_events_update_8007() {
   if (!empty($inherited_fields)) {
     foreach ($inherited_fields as $inherited_field) {
       $field = \Drupal::configFactory()->getEditable($inherited_field);
-      $original_id = $field->getName();
       foreach ($bundles as $bundle_key => $bundle) {
         $data = $field->getRawData();
         $id_parts = [

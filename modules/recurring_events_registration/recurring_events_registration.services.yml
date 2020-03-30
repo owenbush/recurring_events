@@ -7,4 +7,4 @@ services:
     arguments: ['@string_translation', '@config.factory', '@logger.factory', '@messenger', '@token', '@module_handler', '@recurring_events_registration.creation_service']
   recurring_events_registration.access_handler:
     class: Drupal\recurring_events_registration\AccessHandler
-    arguments: ['@string_translation', '@recurring_events_registration.creation_service', '@current_route_match']
+    arguments: ['@string_translation', '@recurring_events_registration.creation_service', '@current_route_match', '@entity_type.manager']

@@ -292,8 +292,6 @@ class RegistrationCreationService {
    *   Whether this user has already registered for this event.
    */
   public function hasUserRegisteredById($uid) {
-    $properties = [];
-
     $registrants = $this->retrieveRegisteredParties(TRUE, TRUE, $uid);
     return !empty($registrants);
   }
@@ -323,7 +321,7 @@ class RegistrationCreationService {
     $waitlisted_users = $this->retrieveWaitlistedParties();
     if (!empty($waitlisted_users)) {
       $first = reset($waitlisted_users);
-      \Drupal::moduleHandler()->alter('recurring_events_registration_first_waitlist', $first);
+      $this->moduleHandler->alter('recurring_events_registration_first_waitlist', $first);
       return $first;
     }
     return NULL;

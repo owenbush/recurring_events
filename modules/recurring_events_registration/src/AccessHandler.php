@@ -9,6 +9,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\recurring_events\EventInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * AccessHandler class definition.
@@ -36,6 +37,13 @@ class AccessHandler {
   protected $routeMatch;
 
   /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Class constructor.
    *
    * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
@@ -44,11 +52,14 @@ class AccessHandler {
    *   The registration creation service.
    * @param Drupal\Core\Routing\CurrentRouteMatch $route_match
    *   The current route match.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
    */
-  public function __construct(TranslationInterface $translation, RegistrationCreationService $creation_service, CurrentRouteMatch $route_match) {
+  public function __construct(TranslationInterface $translation, RegistrationCreationService $creation_service, CurrentRouteMatch $route_match, EntityTypeManagerInterface $entity_type_manager) {
     $this->translation = $translation;
     $this->creationService = $creation_service;
     $this->routeMatch = $route_match;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -58,7 +69,8 @@ class AccessHandler {
     return new static(
       $container->get('string_translation'),
       $container->get('recurring_events_registration.creation_service'),
-      $container->get('current_route_match')
+      $container->get('current_route_match'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -74,7 +86,7 @@ class AccessHandler {
     if (!empty($event_instance)) {
 
       if (!$event_instance instanceof EventInterface && is_numeric($event_instance)) {
-        $event_instance = \Drupal::entityTypeManager()->getStorage('eventinstance')->load($event_instance);
+        $event_instance = $this->entityTypeManager->getStorage('eventinstance')->load($event_instance);
       }
 
       if ($event_instance instanceof EventInterface) {

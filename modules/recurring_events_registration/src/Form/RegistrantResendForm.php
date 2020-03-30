@@ -11,10 +11,10 @@ use Drupal\recurring_events_registration\NotificationService;
 use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Mail\MailManager;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\Core\Render\Renderer;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Provides a form for resending Registrant registration emails.
@@ -80,6 +80,13 @@ class RegistrantResendForm extends FormBase {
   protected $registrant;
 
   /**
+   * The language manager service.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * Constructs a ContactForm object.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request
@@ -94,14 +101,17 @@ class RegistrantResendForm extends FormBase {
    *   The mail manager service.
    * @param \Drupal\Core\Render\Renderer $renderer
    *   The renderer service.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager service.
    */
-  public function __construct(RequestStack $request, RegistrationCreationService $creation_service, NotificationService $notification_service, Messenger $messenger, MailManager $mail, Renderer $renderer) {
+  public function __construct(RequestStack $request, RegistrationCreationService $creation_service, NotificationService $notification_service, Messenger $messenger, MailManager $mail, Renderer $renderer, LanguageManagerInterface $language_manager) {
     $this->request = $request;
     $this->creationService = $creation_service;
     $this->notificationService = $notification_service;
     $this->messenger = $messenger;
     $this->mail = $mail;
     $this->renderer = $renderer;
+    $this->languageManager = $language_manager;
 
     $request = $this->request->getCurrentRequest();
     $params = $request->attributes->all();
@@ -131,7 +141,8 @@ class RegistrantResendForm extends FormBase {
       $container->get('recurring_events_registration.notification_service'),
       $container->get('messenger'),
       $container->get('plugin.manager.mail'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('language_manager')
     );
   }
 
@@ -222,7 +233,7 @@ class RegistrantResendForm extends FormBase {
     ];
 
     $to = $this->registrant->mail->value;
-    $this->mail->mail('recurring_events_registration', 'custom', $to, \Drupal::languageManager()->getDefaultLanguage()->getId(), $params);
+    $this->mail->mail('recurring_events_registration', 'custom', $to, $this->languageManager->getDefaultLanguage()->getId(), $params);
     $this->messenger->addMessage($this->t('Registrant email successfully resent.'));
   }
 

@@ -116,7 +116,6 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
     $config = [];
 
     $user_timezone = new \DateTimeZone(date_default_timezone_get());
-    $utc_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $user_input = $form_state->getUserInput();
 
     $time = $user_input['monthly_recurring_date'][0]['time'];

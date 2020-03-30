@@ -300,7 +300,6 @@ class RegistrantForm extends ContentEntityForm {
     $availability = $this->creationService->retrieveAvailability();
     $waitlist = $this->creationService->hasWaitlist();
     $registration_open = $this->creationService->registrationIsOpen();
-    $reg_type = $this->creationService->getRegistrationType();
 
     // Prevent the form being displayed if registration is closed, or there are
     // no spaces left, and no waitlist.
@@ -351,7 +350,6 @@ class RegistrantForm extends ContentEntityForm {
       $availability = $this->creationService->retrieveAvailability();
       $waitlist = $this->creationService->hasWaitlist();
       $registration_open = $this->creationService->registrationIsOpen();
-      $reg_type = $this->creationService->getRegistrationType();
 
       $add_to_waitlist = $form_state->getValue('add_to_waitlist');
 
@@ -381,8 +379,6 @@ class RegistrantForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $entity = $this->entity;
-
     $event_series = $form_state->getTemporaryValue('series');
     // We need to grab a fresh copy of the series to check for updates.
     $event_series = $this->entityTypeManager->getStorage('eventseries')->load($event_series->id());

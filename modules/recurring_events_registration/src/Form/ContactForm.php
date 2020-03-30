@@ -11,9 +11,9 @@ use Drupal\recurring_events_registration\NotificationService;
 use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Mail\MailManager;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Registrant contact form.
@@ -63,6 +63,13 @@ class ContactForm extends FormBase {
   protected $eventInstance;
 
   /**
+   * The language manager service.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * Constructs a ContactForm object.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request
@@ -75,13 +82,16 @@ class ContactForm extends FormBase {
    *   The messenger service.
    * @param \Drupal\Core\Mail\MailManager $mail
    *   The mail manager service.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager service.
    */
-  public function __construct(RequestStack $request, RegistrationCreationService $creation_service, NotificationService $notification_service, Messenger $messenger, MailManager $mail) {
+  public function __construct(RequestStack $request, RegistrationCreationService $creation_service, NotificationService $notification_service, Messenger $messenger, MailManager $mail, LanguageManagerInterface $language_manager) {
     $this->request = $request;
     $this->creationService = $creation_service;
     $this->notificationService = $notification_service;
     $this->messenger = $messenger;
     $this->mail = $mail;
+    $this->languageManager = $language_manager;
 
     $request = $this->request->getCurrentRequest();
     $params = $request->attributes->all();
@@ -104,7 +114,8 @@ class ContactForm extends FormBase {
       $container->get('recurring_events_registration.creation_service'),
       $container->get('recurring_events_registration.notification_service'),
       $container->get('messenger'),
-      $container->get('plugin.manager.mail')
+      $container->get('plugin.manager.mail'),
+      $container->get('language_manager')
     );
   }
 
@@ -208,7 +219,7 @@ class ContactForm extends FormBase {
         $params['registrant'] = $registrant;
 
         $to = $registrant->mail->value;
-        $this->mail->mail('recurring_events_registration', 'custom', $to, \Drupal::languageManager()->getDefaultLanguage()->getId(), $params);
+        $this->mail->mail('recurring_events_registration', 'custom', $to, $this->languageManager->getDefaultLanguage()->getId(), $params);
 
         if ($registrant->getWaitlist() == '1') {
           $wait_count++;

@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\recurring_events_registration\NotificationService;
 use Drupal\recurring_events_registration\RegistrationCreationService;
+use Drupal\Core\Extension\ModuleHandler;
 
 /**
  * Class RegistrantSettingsForm.
@@ -32,16 +33,26 @@ class RegistrantSettingsForm extends ConfigFormBase {
   protected $creationService;
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
    * Constructs a RegistrantSettingsForm object.
    *
    * @param \Drupal\recurring_events_registration\NotificationService $notification_service
    *   The registration notification service.
    * @param \Drupal\recurring_events_registration\RegistrationCreationService $creation_service
    *   The registration creation service.
+   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   *   The module handler service.
    */
-  public function __construct(NotificationService $notification_service, RegistrationCreationService $creation_service) {
+  public function __construct(NotificationService $notification_service, RegistrationCreationService $creation_service, ModuleHandler $module_handler) {
     $this->notificationService = $notification_service;
     $this->creationService = $creation_service;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -50,7 +61,8 @@ class RegistrantSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('recurring_events_registration.notification_service'),
-      $container->get('recurring_events_registration.creation_service')
+      $container->get('recurring_events_registration.creation_service'),
+      $container->get('module_handler')
     );
   }
 
@@ -88,7 +100,7 @@ class RegistrantSettingsForm extends ConfigFormBase {
       ->set('email_notifications', $form_state->getValue('email_notifications'));
 
     $notification_types = [];
-    \Drupal::moduleHandler()->alter('recurring_events_registration_notification_types', $notification_types);
+    $this->moduleHandler->alter('recurring_events_registration_notification_types', $notification_types);
 
     foreach ($notification_types as $type => $notification) {
       $config
@@ -194,7 +206,7 @@ class RegistrantSettingsForm extends ConfigFormBase {
     $tokens = $this->notificationService->getAvailableTokens();
 
     $notification_types = [];
-    \Drupal::moduleHandler()->alter('recurring_events_registration_notification_types', $notification_types);
+    $this->moduleHandler->alter('recurring_events_registration_notification_types', $notification_types);
 
     foreach ($notification_types as $type => $notification) {
       $form['notifications'][$type] = [

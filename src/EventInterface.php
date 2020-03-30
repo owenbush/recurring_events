@@ -41,29 +41,4 @@ interface EventInterface extends ContentEntityInterface, EntityChangedInterface,
    */
   public function setRevisionCreationTime($timestamp);
 
-  /**
-   * Gets the event revision author.
-   *
-   * @return \Drupal\user\UserInterface
-   *   The user entity for the revision author.
-   *
-   * @deprecated in Drupal 8.2.0, will be removed before Drupal 9.0.0. Use
-   *   \Drupal\Core\Entity\RevisionLogInterface::getRevisionUser() instead.
-   */
-  public function getRevisionAuthor();
-
-  /**
-   * Sets the event revision author.
-   *
-   * @param int $uid
-   *   The user ID of the revision author.
-   *
-   * @return \Drupal\recurring_events\EventInterface
-   *   The called event entity.
-   *
-   * @deprecated in Drupal 8.2.0, will be removed before Drupal 9.0.0. Use
-   *   \Drupal\Core\Entity\RevisionLogInterface::setRevisionUserId() instead.
-   */
-  public function setRevisionAuthorId($uid);
-
 }

@@ -24,6 +24,7 @@ use Drupal\recurring_events_registration\Entity\Registrant;
  */
 function hook_recurring_events_registration_first_waitlist_alter(Registrant $registrant) {
   // Find the ID of the registrant you wish to promote, then load the entity.
+  $id = 1234567;
   $new_registrant = \Drupal::entityTypeManager()->getStorage('registrant')->load($id);
   return $new_registrant;
 }

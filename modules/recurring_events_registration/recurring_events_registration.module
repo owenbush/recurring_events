@@ -162,10 +162,6 @@ function template_preprocess_registrant(array &$variables) {
  * Implements hook_mail().
  */
 function recurring_events_registration_mail($key, &$message, $params) {
-  $options = [
-    'langcode' => $message['langcode'],
-  ];
-
   $service = \Drupal::service('recurring_events_registration.notification_service');
   $service->setKey($key)->setEntity($params['registrant']);
 

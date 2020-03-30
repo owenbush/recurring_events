@@ -90,7 +90,7 @@ function hook_recurring_events_form_config_array_alter(array &$form_config = [])
  */
 function hook_recurring_events_entity_config_array_alter(array &$entity_config = []) {
   // Remove the first custom date.
-  unset($form_config['custom_dates'][0]);
+  unset($entity_config['custom_dates'][0]);
 }
 
 /**
@@ -101,7 +101,7 @@ function hook_recurring_events_entity_config_array_alter(array &$entity_config =
  */
 function hook_recurring_events_diff_array_alter(array &$diff = []) {
   // Do not show differences in custom dates.
-  unset($form_config['custom_dates']);
+  unset($diff['custom_dates']);
 }
 
 /**

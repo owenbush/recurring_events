@@ -12,11 +12,16 @@ use Drupal\Core\Messenger\Messenger;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Field\FieldTypePluginManager;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * EventCreationService class.
  */
 class EventCreationService {
+
+  use StringTranslationTrait;
 
   /**
    * The translation interface.
@@ -61,6 +66,20 @@ class EventCreationService {
   protected $entityFieldManager;
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Class constructor.
    *
    * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
@@ -75,14 +94,20 @@ class EventCreationService {
    *   The field type plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
    *   The entity field manager.
+   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   *   The module handler service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
    */
-  public function __construct(TranslationInterface $translation, Connection $database, LoggerChannelFactoryInterface $logger, Messenger $messenger, FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager) {
+  public function __construct(TranslationInterface $translation, Connection $database, LoggerChannelFactoryInterface $logger, Messenger $messenger, FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, ModuleHandler $module_handler, EntityTypeManagerInterface $entity_type_manager) {
     $this->translation = $translation;
     $this->database = $database;
     $this->loggerFactory = $logger->get('recurring_events');
     $this->messenger = $messenger;
     $this->fieldTypePluginManager = $field_type_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
+    $this->moduleHandler = $module_handler;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -95,7 +120,9 @@ class EventCreationService {
       $container->get('logger.factory'),
       $container->get('messenger'),
       $container->get('plugin.manager.field.field_type'),
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('module_handler'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -157,7 +184,7 @@ class EventCreationService {
       $config += $field_class::convertEntityConfigToArray($event);
     }
 
-    \Drupal::moduleHandler()->alter('recurring_events_entity_config_array', $config);
+    $this->moduleHandler->alter('recurring_events_entity_config_array', $config);
 
     return $config;
   }
@@ -224,7 +251,7 @@ class EventCreationService {
       $config += $field_class::convertFormConfigToArray($form_state);
     }
 
-    \Drupal::moduleHandler()->alter('recurring_events_form_config_array', $config);
+    $this->moduleHandler->alter('recurring_events_form_config_array', $config);
 
     return $config;
   }
@@ -296,7 +323,7 @@ class EventCreationService {
             }
           }
 
-          foreach ($form_config['custom_dates'] as $dates) {
+          foreach ($form_config['custom_dates'] as $date) {
             if (!empty($date['start_date']) && !empty($date['end_date'])) {
               $overridden_start_ends[] = $date['start_date']->format('Y-m-d h:ia') . ' - ' . $date['end_date']->format('Y-m-d h:ia');
             }
@@ -316,7 +343,7 @@ class EventCreationService {
       }
     }
 
-    \Drupal::moduleHandler()->alter('recurring_events_diff_array', $diff);
+    $this->moduleHandler->alter('recurring_events_diff_array', $diff);
 
     return $diff;
   }
@@ -339,21 +366,21 @@ class EventCreationService {
       $create_instances = $this->checkForOriginalRecurConfigChanges($event, $original);
       if ($create_instances) {
         // Allow other modules to react prior to the deletion of all instances.
-        \Drupal::moduleHandler()->invokeAll('recurring_events_save_pre_instances_deletion', [$event, $original]);
+        $this->moduleHandler->invokeAll('recurring_events_save_pre_instances_deletion', [$event, $original]);
 
         // Find all the instances and delete them.
         $instances = $event->event_instances->referencedEntities();
         if (!empty($instances)) {
-          foreach ($instances as $index => $instance) {
+          foreach ($instances as $instance) {
             // Allow other modules to react prior to deleting a specific
             // instance after a date configuration change.
-            \Drupal::moduleHandler()->invokeAll('recurring_events_save_pre_instance_deletion', [$event, $instance]);
+            $this->moduleHandler->invokeAll('recurring_events_save_pre_instance_deletion', [$event, $instance]);
 
             $instance->delete();
 
             // Allow other modules to react after deleting a specific instance
             // after a date configuration change.
-            \Drupal::moduleHandler()->invokeAll('recurring_events_save_post_instance_deletion', [$event, $instance]);
+            $this->moduleHandler->invokeAll('recurring_events_save_post_instance_deletion', [$event, $instance]);
           }
           $this->messenger->addStatus($this->translation->translate('A total of %count existing event instances were removed', [
             '%count' => count($instances),
@@ -361,7 +388,7 @@ class EventCreationService {
         }
 
         // Allow other modules to react after the deletion of all instances.
-        \Drupal::moduleHandler()->invokeAll('recurring_events_save_post_instances_deletion', [$event, $original]);
+        $this->moduleHandler->invokeAll('recurring_events_save_post_instances_deletion', [$event, $original]);
       }
     }
 
@@ -381,9 +408,6 @@ class EventCreationService {
     $form_data = $this->convertEntityConfigToArray($event);
     $event_instances = [];
 
-    $timezone = new \DateTimeZone(date_default_timezone_get());
-    $utc_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
-
     if (!empty($form_data['type'])) {
       if ($form_data['type'] === 'custom') {
         if (!empty($form_data['custom_dates'])) {
@@ -398,7 +422,7 @@ class EventCreationService {
 
           // Allow modules to alter the array of event instances before they
           // get created.
-          \Drupal::moduleHandler()->alter('recurring_events_event_instances_pre_create', $events_to_create, $event);
+          $this->moduleHandler->alter('recurring_events_event_instances_pre_create', $events_to_create, $event);
 
           if (!empty($events_to_create)) {
             foreach ($events_to_create as $custom_event) {
@@ -414,7 +438,7 @@ class EventCreationService {
 
         // Allow modules to alter the array of event instances before they
         // get created.
-        \Drupal::moduleHandler()->alter('recurring_events_event_instances_pre_create', $events_to_create, $event);
+        $this->moduleHandler->alter('recurring_events_event_instances_pre_create', $events_to_create, $event);
 
         if (!empty($events_to_create)) {
           foreach ($events_to_create as $event_to_create) {
@@ -454,12 +478,9 @@ class EventCreationService {
       'type' => $event->getType(),
     ];
 
-    \Drupal::moduleHandler()->alter('recurring_events_event_instance', $data);
+    $this->moduleHandler->alter('recurring_events_event_instance', $data);
 
-    $entity = \Drupal::entityTypeManager()
-      ->getStorage('eventinstance')
-      ->create($data);
-
+    $entity = $this->entityTypeManager->getStorage('eventinstance')->create($data);
     $entity->save();
 
     return $entity;
@@ -533,7 +554,7 @@ class EventCreationService {
     // hook.
     $recur_fields = [];
     $fields = $this->entityFieldManager->getBaseFieldDefinitions('eventseries');
-    foreach ($fields as $field_name => $field) {
+    foreach ($fields as $field) {
       $field_definition = $this->fieldTypePluginManager->getDefinition($field->getType());
       $class = new \ReflectionClass($field_definition['class']);
       if ($class->implementsInterface('\Drupal\recurring_events\RecurringEventsFieldTypeInterface')) {
@@ -541,9 +562,9 @@ class EventCreationService {
       }
     }
 
-    $recur_fields['custom'] = t('Custom Event');
+    $recur_fields['custom'] = $this->t('Custom Event');
     if ($allow_alter) {
-      \Drupal::moduleHandler()->alter('recurring_events_recur_field_types', $recur_fields);
+      $this->moduleHandler->alter('recurring_events_recur_field_types', $recur_fields);
     }
     return $recur_fields;
   }

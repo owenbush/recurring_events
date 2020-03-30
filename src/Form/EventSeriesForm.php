@@ -16,6 +16,9 @@ use Drupal\recurring_events\Plugin\Field\FieldWidget\ConsecutiveRecurringDateWid
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Extension\ModuleHandler;
 
 /**
  * Form controller for the eventseries entity create form.
@@ -74,6 +77,34 @@ class EventSeriesForm extends ContentEntityForm {
   protected $fieldTypePluginManager;
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\Time
+   */
+  protected $time;
+
+  /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -87,7 +118,10 @@ class EventSeriesForm extends ContentEntityForm {
       $container->get('plugin.manager.field.field_type'),
       $container->get('entity.repository'),
       $container->get('entity_type.bundle.info'),
-      $container->get('datetime.time')
+      $container->get('datetime.time'),
+      $container->get('current_user'),
+      $container->get('module_handler'),
+      $container->get('config.factory')
     );
   }
 
@@ -108,14 +142,30 @@ class EventSeriesForm extends ContentEntityForm {
    *   The entity field manager.
    * @param \Drupal\Core\Field\FieldTypePluginManager $field_type_plugin_manager
    *   The field type plugin manager.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity repository interface.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info interface.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time interface.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   The current user.
+   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   *   The module handler service.
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   The config factory.
    */
-  public function __construct(EventCreationService $creation_service, EntityStorageInterface $storage, EntityManagerInterface $entity_manager, Messenger $messenger, DateFormatter $date_formatter, EntityFieldManager $entity_field_manager, FieldTypePluginManager $field_type_plugin_manager, EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL) {
+  public function __construct(EventCreationService $creation_service, EntityStorageInterface $storage, EntityManagerInterface $entity_manager, Messenger $messenger, DateFormatter $date_formatter, EntityFieldManager $entity_field_manager, FieldTypePluginManager $field_type_plugin_manager, EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, AccountProxyInterface $current_user = NULL, ModuleHandler $module_handler = NULL, ConfigFactory $config_factory = NULL) {
     $this->creationService = $creation_service;
     $this->storage = $storage;
     $this->messenger = $messenger;
     $this->dateFormatter = $date_formatter;
     $this->entityFieldManager = $entity_field_manager;
     $this->fieldTypePluginManager = $field_type_plugin_manager;
+    $this->time = $time;
+    $this->currentUser = $current_user;
+    $this->moduleHandler = $module_handler;
+    $this->configFactory = $config_factory;
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
   }
 
@@ -125,7 +175,7 @@ class EventSeriesForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
-    $config = \Drupal::config('recurring_events.eventseries.config');
+    $config = $this->configFactory->get('recurring_events.eventseries.config');
 
     /* @var $entity \Drupal\recurring_events\Entity\EventSeries */
     $entity = $this->entity;
@@ -143,7 +193,7 @@ class EventSeriesForm extends ContentEntityForm {
     // necessary fields from the entity form.
     $recur_fields = $this->creationService->getRecurFieldTypes(FALSE);
     $all_recur_fields = $recur_fields;
-    \Drupal::moduleHandler()->alter('recurring_events_recur_field_types', $recur_fields);
+    $this->moduleHandler->alter('recurring_events_recur_field_types', $recur_fields);
 
     $form['recur_type']['widget']['#options'] = $recur_fields;
 
@@ -226,7 +276,7 @@ class EventSeriesForm extends ContentEntityForm {
       '#title' => $this->t('Status'),
       '#attributes' => ['class' => ['entity-meta__header']],
       '#tree' => TRUE,
-      '#access' => \Drupal::currentUser()->hasPermission('administer eventseries'),
+      '#access' => $this->currentUser->hasPermission('administer eventseries'),
     ];
     $form['meta']['published'] = [
       '#type' => 'item',
@@ -282,22 +332,17 @@ class EventSeriesForm extends ContentEntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $entity = $this->getEntity();
-    $original = NULL;
 
     // Save as a new revision if requested to do so.
     if (!$form_state->isValueEmpty('revision') && $form_state->getValue('revision') != FALSE) {
       $entity->setNewRevision();
 
       // If a new revision is created, save the current user as revision author.
-      $entity->setRevisionCreationTime(\Drupal::time()->getRequestTime());
-      $entity->setRevisionUserId(\Drupal::currentUser()->id());
+      $entity->setRevisionCreationTime($this->time->getRequestTime());
+      $entity->setRevisionUserId($this->currentUser->id());
     }
     else {
       $entity->setNewRevision(FALSE);
-    }
-
-    if (!$entity->isNew()) {
-      $original = $this->storage->loadUnchanged($entity->id());
     }
 
     if ($entity->isDefaultTranslation()) {

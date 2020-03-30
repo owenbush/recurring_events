@@ -4,11 +4,39 @@ namespace Drupal\recurring_events\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\Messenger;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class EventInstanceTypeForm.
  */
 class EventInstanceTypeForm extends EntityForm {
+
+  /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\Messenger
+   */
+  protected $messenger;
+
+  /**
+   * Constructs a new EventSeriesTypeForm.
+   *
+   * @param \Drupal\Core\Messenger\Messenger $messenger
+   *   The messenger service.
+   */
+  public function __construct(Messenger $messenger) {
+    $this->messenger = $messenger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('messenger')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -53,13 +81,13 @@ class EventInstanceTypeForm extends EntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        \Drupal::messenger()->addMessage($this->t('Created the %label event instance type.', [
+        $this->messenger->addMessage($this->t('Created the %label event instance type.', [
           '%label' => $eventinstance_type->label(),
         ]));
         break;
 
       default:
-        \Drupal::messenger()->addMessage($this->t('Saved the %label event instance type.', [
+        $this->messenger->addMessage($this->t('Saved the %label event instance type.', [
           '%label' => $eventinstance_type->label(),
         ]));
     }

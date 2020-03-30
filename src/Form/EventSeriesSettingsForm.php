@@ -6,6 +6,8 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
+use Drupal\recurring_events\EventCreationService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class EventSeriesSettingsForm.
@@ -13,6 +15,32 @@ use Drupal\Core\Link;
  * @ingroup recurring_events
  */
 class EventSeriesSettingsForm extends ConfigFormBase {
+
+  /**
+   * The event creation service.
+   *
+   * @var \Drupal\recurring_events\EventCreationService
+   */
+  protected $creationService;
+
+  /**
+   * Constructs a new EventSeriesSettingsForm.
+   *
+   * @param \Drupal\recurring_events\EventCreationService $creation_service
+   *   The event creation service.
+   */
+  public function __construct(EventCreationService $creation_service) {
+    $this->creationService = $creation_service;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('recurring_events.event_creation_service')
+    );
+  }
 
   /**
    * Returns a unique string identifying the form.
@@ -128,13 +156,13 @@ class EventSeriesSettingsForm extends ConfigFormBase {
     ];
 
     $days = [
-      'monday' => t('Monday'),
-      'tuesday' => t('Tuesday'),
-      'wednesday' => t('Wednesday'),
-      'thursday' => t('Thursday'),
-      'friday' => t('Friday'),
-      'saturday' => t('Saturday'),
-      'sunday' => t('Sunday'),
+      'monday' => $this->t('Monday'),
+      'tuesday' => $this->t('Tuesday'),
+      'wednesday' => $this->t('Wednesday'),
+      'thursday' => $this->t('Thursday'),
+      'friday' => $this->t('Friday'),
+      'saturday' => $this->t('Saturday'),
+      'sunday' => $this->t('Sunday'),
     ];
 
     $form['creation']['days'] = [
@@ -164,7 +192,7 @@ class EventSeriesSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('includes'),
     ];
 
-    $fields = \Drupal::service('recurring_events.event_creation_service')->getRecurFieldTypes(FALSE);
+    $fields = $this->creationService->getRecurFieldTypes(FALSE);
 
     $form['creation']['enabled_fields'] = [
       '#type' => 'checkboxes',

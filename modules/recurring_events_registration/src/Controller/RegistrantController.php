@@ -10,7 +10,7 @@ use Drupal\recurring_events_registration\Entity\RegistrantInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\user\Entity\User;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * The RegistrantController class.
@@ -32,16 +32,26 @@ class RegistrantController extends ControllerBase implements ContainerInjectionI
   protected $currentUser;
 
   /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Constructs a RegistrantController object.
    *
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current user.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
    */
-  public function __construct(RendererInterface $renderer, AccountProxyInterface $current_user) {
+  public function __construct(RendererInterface $renderer, AccountProxyInterface $current_user, EntityTypeManagerInterface $entity_type_manager) {
     $this->renderer = $renderer;
     $this->currentUser = $current_user;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -50,7 +60,8 @@ class RegistrantController extends ControllerBase implements ContainerInjectionI
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('renderer'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -88,7 +99,7 @@ class RegistrantController extends ControllerBase implements ContainerInjectionI
    */
   public function canContactRegistrants(EventInstance $eventinstance) {
     if (!empty($eventinstance)) {
-      $account = User::load($this->currentUser->id());
+      $account = $this->entityTypeManager->getStorage('user')->load($this->currentUser->id());
       return AccessResult::allowedIfHasPermission($account, 'contact registrants');
     }
     return AccessResult::forbidden();

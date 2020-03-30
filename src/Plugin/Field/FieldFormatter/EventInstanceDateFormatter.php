@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the 'recurring events eventinstance date' formatter.
@@ -23,6 +24,8 @@ use Drupal\Core\Link;
  * )
  */
 class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -40,7 +43,7 @@ class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements['link'] = [
-      '#title' => t('Link date to the referenced entity'),
+      '#title' => $this->t('Link date to the referenced entity'),
       '#type' => 'checkbox',
       '#default_value' => $this->getSetting('link'),
     ];
@@ -50,7 +53,7 @@ class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
 
     $elements['date_format'] = [
       '#type' => 'textfield',
-      '#title' => t('Date Format @link', [
+      '#title' => $this->t('Date Format @link', [
         '@link' => $php_date_link->toString(),
       ]),
       '#required' => TRUE,
@@ -58,9 +61,9 @@ class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
     ];
 
     $elements['separator'] = [
-      '#title' => t('Separator'),
+      '#title' => $this->t('Separator'),
       '#type' => 'textfield',
-      '#description' => t('Enter the separator to use between start and end dates.'),
+      '#description' => $this->t('Enter the separator to use between start and end dates.'),
       '#default_value' => $this->getSetting('separator'),
     ];
 
@@ -72,11 +75,11 @@ class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = $this->getSetting('link') ? t('Link to the referenced entity') : t('No link');
-    $summary[] = t('Format: %format', [
+    $summary[] = $this->getSetting('link') ? $this->t('Link to the referenced entity') : $this->t('No link');
+    $summary[] = $this->t('Format: %format', [
       '%format' => $this->getSetting('date_format'),
     ]);
-    $summary[] = t('Separator: %separator', [
+    $summary[] = $this->t('Separator: %separator', [
       '%separator' => $this->getSetting('separator'),
     ]);
     return $summary;

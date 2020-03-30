@@ -5,6 +5,7 @@ namespace Drupal\recurring_events_registration\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\datetime_range\Plugin\Field\FieldWidget\DateRangeDefaultWidget;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the 'event registration' widget.
@@ -19,6 +20,8 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class EventRegistrationWidget extends DateRangeDefaultWidget {
 
+  use StringTranslationTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -29,21 +32,21 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['registration'] = [
       '#type' => 'checkbox',
-      '#title' => t('Enable Registration'),
-      '#description' => t('Select this box to enable registrations for this event. By doing so you will be able to specify the capacity of the event, and if applicable enable a waitlist.'),
+      '#title' => $this->t('Enable Registration'),
+      '#description' => $this->t('Select this box to enable registrations for this event. By doing so you will be able to specify the capacity of the event, and if applicable enable a waitlist.'),
       '#weight' => 0,
       '#default_value' => $items[$delta]->registration ?: '',
     ];
 
     $element['registration_type'] = [
       '#type' => 'radios',
-      '#title' => t('Registration Type'),
-      '#description' => t('Select whether registrations are for the entire series, or for individual instances.'),
+      '#title' => $this->t('Registration Type'),
+      '#description' => $this->t('Select whether registrations are for the entire series, or for individual instances.'),
       '#weight' => 1,
       '#default_value' => $items[$delta]->registration_type ?: 'instance',
       '#options' => [
-        'instance' => t('Individual Event Registration'),
-        'series' => t('Entire Series Registration'),
+        'instance' => $this->t('Individual Event Registration'),
+        'series' => $this->t('Entire Series Registration'),
       ],
       '#states' => [
         'visible' => [
@@ -54,13 +57,13 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['registration_dates'] = [
       '#type' => 'radios',
-      '#title' => t('Registration Dates'),
-      '#description' => t('Choose between open or scheduled registration.'),
+      '#title' => $this->t('Registration Dates'),
+      '#description' => $this->t('Choose between open or scheduled registration.'),
       '#weight' => 2,
       '#default_value' => $items[$delta]->registration_dates ?: 'open',
       '#options' => [
-        'open' => t('Open Registration'),
-        'scheduled' => t('Scheduled Registration'),
+        'open' => $this->t('Open Registration'),
+        'scheduled' => $this->t('Scheduled Registration'),
       ],
       '#states' => [
         'visible' => [
@@ -71,7 +74,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['series_registration'] = [
       '#type' => 'fieldset',
-      '#title' => t('Series Registration'),
+      '#title' => $this->t('Series Registration'),
       '#weight' => 3,
       '#states' => [
         'visible' => [
@@ -87,12 +90,12 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     unset($element['value']);
     unset($element['end_value']);
 
-    $element['series_registration']['value']['#title'] = t('Registration Opens');
-    $element['series_registration']['end_value']['#title'] = t('Registration Closes');
+    $element['series_registration']['value']['#title'] = $this->t('Registration Opens');
+    $element['series_registration']['end_value']['#title'] = $this->t('Registration Closes');
 
     $element['instance_registration'] = [
       '#type' => 'fieldset',
-      '#title' => t('Instance Registration'),
+      '#title' => $this->t('Instance Registration'),
       '#weight' => 3,
       '#states' => [
         'visible' => [
@@ -105,8 +108,8 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['instance_registration']['time_amount'] = [
       '#type' => 'number',
-      '#title' => t('Registration Time Amount'),
-      '#description' => t('Enter the amount of time in days or hours before the event(s) start time(s) that registration should open.'),
+      '#title' => $this->t('Registration Time Amount'),
+      '#description' => $this->t('Enter the amount of time in days or hours before the event(s) start time(s) that registration should open.'),
       '#weight' => 0,
       '#default_value' => $items[$delta]->time_amount ?: '',
       '#min' => 0,
@@ -114,20 +117,20 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['instance_registration']['time_type'] = [
       '#type' => 'select',
-      '#title' => t('Registration Time Type'),
-      '#description' => t("Select either Days or Hours to choose how long before which an event's registration will open."),
+      '#title' => $this->t('Registration Time Type'),
+      '#description' => $this->t("Select either Days or Hours to choose how long before which an event's registration will open."),
       '#weight' => 1,
       '#default_value' => $items[$delta]->time_type ?: '',
       '#options' => [
-        'days' => t('Days'),
-        'hours' => t('Hours'),
+        'days' => $this->t('Days'),
+        'hours' => $this->t('Hours'),
       ],
     ];
 
     $element['capacity'] = [
       '#type' => 'number',
-      '#title' => t('Total Number of Spaces Available'),
-      '#description' => t('Maximum number of attendees available for each series, or individual event.'),
+      '#title' => $this->t('Total Number of Spaces Available'),
+      '#description' => $this->t('Maximum number of attendees available for each series, or individual event.'),
       '#weight' => 4,
       '#default_value' => $items[$delta]->capacity ?: '',
       '#min' => 0,
@@ -140,8 +143,8 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['waitlist'] = [
       '#type' => 'checkbox',
-      '#title' => t('Enable Waiting List'),
-      '#description' => t('Enable a waiting list if the number of registrations reaches capacity.'),
+      '#title' => $this->t('Enable Waiting List'),
+      '#description' => $this->t('Enable a waiting list if the number of registrations reaches capacity.'),
       '#weight' => 5,
       '#default_value' => $items[$delta]->waitlist ?: '',
       '#states' => [
