@@ -79,6 +79,11 @@ before_script:
 
 script:
   # Run the PHPUnit tests.
+  - ./vendor/bin/drush site-install standard --yes --account-pass=admin --db-url=mysql://root:@127.0.0.1/$MODULE
+  - ./vendor/bin/drush config-set system.performance css.preprocess 0 --yes
+  - ./vendor/bin/drush config-set system.performance js.preprocess 0 --yes
+  - ./vendor/bin/drush config-set system.logging error_level all --yes
+  - ./vendor/bin/drush en simpletest recurring_events recurring_events_registration recurring_events_views --yes
   - ./vendor/bin/phpunit -c ./web/core/phpunit.xml.dist --verbose --group=$MODULE ./web/modules/contrib/$MODULE
 
   # Run the deprecation checks.
