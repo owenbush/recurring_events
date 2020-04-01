@@ -163,6 +163,7 @@ class Registrant extends ContentEntityBase implements RegistrantInterface {
           'size' => '60',
           'autocomplete_type' => 'tags',
           'placeholder' => '',
+          'match_limit' => 10,
         ],
       ])
       ->setDisplayConfigurable('form', TRUE)

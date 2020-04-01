@@ -312,6 +312,7 @@ class EventInstance extends EditorialContentEntityBase implements EventInterface
           'match_operator' => 'CONTAINS',
           'size' => '60',
           'placeholder' => '',
+          'match_limit' => 10,
         ],
       ])
       ->setDisplayConfigurable('form', TRUE);
