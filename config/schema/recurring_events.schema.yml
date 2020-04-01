@@ -55,3 +55,17 @@ recurring_events.eventinstance.config:
     limit:
       type: integer
       label: 'The items per page to show on event instance listing'
+
+field.formatter.settings.recurring_events_eventinstance_date:
+  type: mapping
+  label: 'Recurring Events Event Instance Date Formatter'
+  mapping:
+    link:
+      type: string
+      label: 'Whether to format the date as a link'
+    date_format:
+      type: string
+      label: 'The date format to use to display the date'
+    separator:
+      type: string
+      label: 'The separator to use between start and end dates'
