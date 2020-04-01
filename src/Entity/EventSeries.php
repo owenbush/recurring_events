@@ -453,7 +453,6 @@ class EventSeries extends EditorialContentEntityBase implements EventInterface {
       ->setRequired(FALSE)
       ->setDisplayOptions('form', [
         'type' => 'daterange_default',
-        'label' => 'above',
         'weight' => 5,
       ]);
 
@@ -469,7 +468,6 @@ class EventSeries extends EditorialContentEntityBase implements EventInterface {
       ->setSetting('datetime_type', 'date')
       ->setDisplayOptions('form', [
         'type' => 'daterange_default',
-        'label' => 'above',
         'weight' => 6,
         'settings' => [
           'format_type' => 'html_date',
@@ -489,7 +487,6 @@ class EventSeries extends EditorialContentEntityBase implements EventInterface {
       ->setSetting('datetime_type', 'date')
       ->setDisplayOptions('form', [
         'type' => 'daterange_default',
-        'label' => 'above',
         'weight' => 6,
         'settings' => [
           'format_type' => 'html_date',

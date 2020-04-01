@@ -28,7 +28,6 @@ content:
     third_party_settings: {  }
   custom_date:
     type: daterange_default
-    label: above
     weight: 7
     region: content
     settings: {  }
@@ -41,14 +40,12 @@ content:
     third_party_settings: {  }
   excluded_dates:
     type: daterange_default
-    label: above
     weight: 8
     settings: {  }
     region: content
     third_party_settings: {  }
   included_dates:
     type: daterange_default
-    label: above
     weight: 9
     settings: {  }
     region: content
