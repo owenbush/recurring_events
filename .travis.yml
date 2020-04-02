@@ -61,7 +61,12 @@ before_script:
   - cd drupal
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group:1.x-dev
+  - cd web/modules/contrib/group
+  - curl https://www.drupal.org/files/issues/2020-01-31/group-deprecations-3088226-10.patch > patch.patch
+  - patch -p1 < patch.patch
+  - rm -rf patch.patch
+  - cd $DRUPAL_ROOT
   - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/field_inheritance
   - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
   - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
