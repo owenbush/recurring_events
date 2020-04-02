@@ -5,7 +5,6 @@ namespace Drupal\recurring_events\Form;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\recurring_events\EventCreationService;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Messenger\Messenger;
@@ -111,7 +110,6 @@ class EventSeriesForm extends ContentEntityForm {
     return new static(
       $container->get('recurring_events.event_creation_service'),
       $container->get('entity_type.manager')->getStorage('eventseries'),
-      $container->get('entity.manager'),
       $container->get('messenger'),
       $container->get('date.formatter'),
       $container->get('entity_field.manager'),
@@ -132,8 +130,6 @@ class EventSeriesForm extends ContentEntityForm {
    *   The event creation service.
    * @param \Drupal\Core\Entity\EntityStorageInterface $storage
    *   The storage interface.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager service.
    * @param \Drupal\Core\Messenger\Messenger $messenger
    *   The messenger service.
    * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
@@ -155,7 +151,7 @@ class EventSeriesForm extends ContentEntityForm {
    * @param \Drupal\Core\Config\ConfigFactory $config_factory
    *   The config factory.
    */
-  public function __construct(EventCreationService $creation_service, EntityStorageInterface $storage, EntityManagerInterface $entity_manager, Messenger $messenger, DateFormatter $date_formatter, EntityFieldManager $entity_field_manager, FieldTypePluginManager $field_type_plugin_manager, EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, AccountProxyInterface $current_user = NULL, ModuleHandler $module_handler = NULL, ConfigFactory $config_factory = NULL) {
+  public function __construct(EventCreationService $creation_service, EntityStorageInterface $storage, Messenger $messenger, DateFormatter $date_formatter, EntityFieldManager $entity_field_manager, FieldTypePluginManager $field_type_plugin_manager, EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, AccountProxyInterface $current_user = NULL, ModuleHandler $module_handler = NULL, ConfigFactory $config_factory = NULL) {
     $this->creationService = $creation_service;
     $this->storage = $storage;
     $this->messenger = $messenger;

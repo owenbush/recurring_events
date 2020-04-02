@@ -5,7 +5,7 @@ namespace Drupal\recurring_events\Form;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Component\Datetime\TimeInterface;
@@ -43,7 +43,7 @@ class EventInstanceForm extends ContentEntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('entity.repository'),
       $container->get('messenger'),
       $container->get('current_user'),
       $container->get('datetime.time')
@@ -53,8 +53,8 @@ class EventInstanceForm extends ContentEntityForm {
   /**
    * Construct an EventInstanceForm.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager service.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity repository service.
    * @param \Drupal\Core\Messenger\Messenger $messenger
    *   The messenger service.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
@@ -62,11 +62,11 @@ class EventInstanceForm extends ContentEntityForm {
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
    */
-  public function __construct(EntityManagerInterface $entity_manager, Messenger $messenger, AccountProxyInterface $current_user, TimeInterface $time) {
+  public function __construct(EntityRepositoryInterface $entity_repository, Messenger $messenger, AccountProxyInterface $current_user, TimeInterface $time) {
     $this->messenger = $messenger;
     $this->currentUser = $current_user;
     $this->time = $time;
-    parent::__construct($entity_manager);
+    parent::__construct($entity_repository);
   }
 
   /**

@@ -5,7 +5,7 @@ namespace Drupal\recurring_events\Form;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Datetime\DateFormatter;
@@ -41,15 +41,15 @@ class EventInstanceDeleteForm extends ContentEntityDeleteForm {
   /**
    * Construct a EventInstanceDeleteForm.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager service.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity repository service.
    * @param \Drupal\Core\Messenger\Messenger $messenger
    *   The messenger service.
    * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
    *   The date formatter service.
    */
-  public function __construct(EntityManagerInterface $entity_manager, Messenger $messenger, DateFormatter $date_formatter) {
-    parent::__construct($entity_manager);
+  public function __construct(EntityRepositoryInterface $entity_repository, Messenger $messenger, DateFormatter $date_formatter) {
+    parent::__construct($entity_repository);
     $this->messenger = $messenger;
     $this->dateFormatter = $date_formatter;
   }
@@ -59,7 +59,7 @@ class EventInstanceDeleteForm extends ContentEntityDeleteForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('entity.repository'),
       $container->get('messenger'),
       $container->get('date.formatter')
     );
