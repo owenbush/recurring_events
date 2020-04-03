@@ -56,6 +56,9 @@ before_script:
   - cd drupal
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/field_inheritance
+  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
+  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   # Group is not D9 ready yet, without patches, so using composer does not work
   # at this time. Replace this with:
   # COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group:1.x-dev
@@ -66,9 +69,6 @@ before_script:
   - patch -p1 < patch.patch
   - rm -rf patch.patch
   - cd $DRUPAL_ROOT
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/field_inheritance
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drush/drush:^$DRUSH_VER
-  - COMPOSER_MEMORY_LIMIT=-1 composer require mglaman/drupal-check --dev
   - cp -R $TRAVIS_BUILD_DIR web/modules/contrib/$MODULE
 
   # Coder is already installed as part of composer install. We just need to set
