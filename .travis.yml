@@ -56,8 +56,12 @@ before_script:
   - cd drupal
   - DRUPAL_ROOT=$(pwd)
   - echo $DRUPAL_ROOT
-  - COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group:1.x-dev
-  - cd web/modules/contrib/group
+  # Group is not D9 ready yet, without patches, so using composer does not work
+  # at this time. Replace this with:
+  # COMPOSER_MEMORY_LIMIT=-1 composer require drupal/group:1.x-dev
+  - cd web/modules/contrib/
+  - git clone --branch 8.x-1.x https://git.drupalcode.org/project/group.git
+  - cd group
   - curl https://www.drupal.org/files/issues/2020-01-31/group-deprecations-3088226-10.patch > patch.patch
   - patch -p1 < patch.patch
   - rm -rf patch.patch
