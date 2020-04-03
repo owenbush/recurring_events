@@ -72,9 +72,9 @@ before_script:
 
   - cd $DRUPAL_ROOT
 
-  # The recurring events module artifact is already available, so symlink it in
+  # The recurring events module artifact is already available, so copy it in
   # to the contrib module directory so we can run our tests.
-  - ln -s $TRAVIS_BUILD_DIR web/modules/contrib/$MODULE
+  - cp -R $TRAVIS_BUILD_DIR web/modules/contrib/$MODULE
 
   # Coder is already installed as part of composer install. We just need to set
   # the installed_paths to pick up the Drupal standards.
