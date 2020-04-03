@@ -4,7 +4,6 @@ date_format: 'F jS, Y h:iA'
 title: '[registrant:email]'
 email_notifications: true
 registration_notification_enabled: true
-registration_notification_enabled: true
 registration_notification_subject: 'You''ve Successfully Registered'
 registration_notification_body: "Your registration for the [eventinstance:title] [eventinstance:reg_type] was successful.\r\n\r\nModify your registration: [registrant:edit_url]\r\nDelete your registration: [registrant:delete_url]"
 waitlist_notification_enabled: true
