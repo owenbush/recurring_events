@@ -11,6 +11,32 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Config\FileStorage;
 
 /**
+ * Set up the config to allow field inheritance for event instances.
+ */
+function recurring_events_install() {
+  // Enable the eventinstance bundles to allow inheritance.
+  $config = \Drupal::configFactory()->getEditable('field_inheritance.config');
+  $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('eventseries');
+  $data = $config->getRawData();
+
+  $included_entities = $data['included_entities'];
+  $included_entities = explode(',', $included_entities);
+  $included_entities[] = 'eventinstance';
+  sort($included_entities);
+  $data['included_entities'] = implode(',', $included_entities);
+
+  $included_bundles = $data['included_bundles'];
+  $included_bundles = explode(',', $included_bundles);
+  foreach ($bundles as $bundle_key => $bundle) {
+    $included_bundles[] = 'eventinstance:' . $bundle_key;
+  }
+  sort($included_bundles);
+  $data['included_bundles'] = implode(',', $included_bundles);
+  $config->setData($data)->save();
+}
+
+
+/**
  * Install the excluded and included date fields.
  */
 function recurring_events_update_8001() {

@@ -17,6 +17,7 @@ use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactory;
 use Drupal\recurring_events\Entity\EventInstance;
+use Drupal\field_inheritance\Entity\FieldInheritanceInterface;
 
 /**
  * EventCreationService class.
@@ -510,7 +511,7 @@ class EventCreationService {
    */
   public function configureDefaultInheritances(EventInstance $instance, int $series_id = NULL) {
     if (is_null($series_id)) {
-      $series_id = $instance->eventseries_id->value;
+      $series_id = $instance->eventseries_id->target_id;
     }
 
     if (!empty($series_id)) {
@@ -544,6 +545,31 @@ class EventCreationService {
         }
       }
     }
+  }
+
+  /**
+   * When adding a new field inheritance, add the default values for it.
+   *
+   * @param Drupal\recurring_events\Entity\EventInstance $instance
+   *   The event instance.
+   *
+   * @return void
+   */
+  public function addNewDefaultInheritance(EventInstance $instance, FieldInheritanceInterface $field_inheritance) {
+    $state_key =  'eventinstance:' . $instance->uuid();
+    $state = $this->keyValueStore->get('field_inheritance');
+    $state_values = $state->get($state_key);
+    $name = $field_inheritance->idWithoutTypeAndBundle();
+
+    if (!empty($state_values[$name])) {
+      return;
+    }
+
+    $state_values[$name] = [
+      'entity' => $instance->eventseries_id->target_id,
+    ];
+
+    $state->set($state_key, $state_values);
   }
 
   /**
