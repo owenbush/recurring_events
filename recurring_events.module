@@ -227,43 +227,29 @@ function recurring_events_eventseries_insert(EntityInterface $entity) {
   // the series at that point. Now that the eventseries is properly saved we can
   // go and set the eventseries_id on the eventinstances.
   $instances = $entity->event_instances->referencedEntities();
+  $creation_service = \Drupal::service('recurring_events.event_creation_service');
   if (!empty($instances)) {
     foreach ($instances as $instance) {
       if (empty($instance->eventseries_id->value)) {
         $instance->set('eventseries_id', $entity->id());
         $instance->setNewRevision(FALSE);
-
-        // Configure the field inheritances for this instance.
-        $entity_type = $instance->getEntityTypeId();
-        $bundle = $instance->bundle();
-        $inherited_field_ids = \Drupal::entityQuery('field_inheritance')
-          ->condition('sourceEntityType', 'eventseries')
-          ->condition('destinationEntityType', $entity_type)
-          ->condition('destinationEntityBundle', $bundle)
-          ->execute();
-
-        if (!empty($inherited_field_ids)) {
-          $state_key = $entity_type . ':' . $instance->uuid();
-          $state = \Drupal::keyValue('field_inheritance');
-          $state_values = $state->get($state_key);
-
-          $inherited_fields = \Drupal::entityTypeManager()->getStorage('field_inheritance')->loadMultiple($inherited_field_ids);
-          $state_values = [
-            'enabled' => TRUE,
-          ];
-          if (!empty($inherited_fields)) {
-            foreach ($inherited_fields as $inherited_field) {
-              $name = $inherited_field->idWithoutTypeAndBundle();
-              $state_values[$name] = [
-                'entity' => $instance->getEventSeries()->id(),
-              ];
-            }
-          }
-          $state->set($state_key, $state_values);
-        }
-
         $instance->save();
+
+        $creation_service->configureDefaultInheritances($instance, $entity->id());
       }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function recurring_events_eventseries_update(EntityInterface $entity) {
+  $creation_service = \Drupal::service('recurring_events.event_creation_service');
+  $instances = $entity->event_instances->referencedEntities();
+  if (!empty($instances)) {
+    foreach ($instances as $instance) {
+      $creation_service->configureDefaultInheritances($instance, $entity->id());
     }
   }
 }

@@ -15,6 +15,8 @@ use Drupal\Core\Field\FieldTypePluginManager;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\KeyValueStore\KeyValueFactory;
+use Drupal\recurring_events\Entity\EventInstance;
 
 /**
  * EventCreationService class.
@@ -80,6 +82,13 @@ class EventCreationService {
   protected $entityTypeManager;
 
   /**
+   * The key value storage service.
+   *
+   * @var \Drupal\Core\KeyValueStore\KeyValueFactory
+   */
+  protected $keyValueStore;
+
+  /**
    * Class constructor.
    *
    * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
@@ -98,8 +107,10 @@ class EventCreationService {
    *   The module handler service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
+   * @param \Drupal\Core\KeyValueStore\KeyValueFactory $key_value
+   *   The key value storage service.
    */
-  public function __construct(TranslationInterface $translation, Connection $database, LoggerChannelFactoryInterface $logger, Messenger $messenger, FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, ModuleHandler $module_handler, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(TranslationInterface $translation, Connection $database, LoggerChannelFactoryInterface $logger, Messenger $messenger, FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, ModuleHandler $module_handler, EntityTypeManagerInterface $entity_type_manager, KeyValueFactory $key_value) {
     $this->translation = $translation;
     $this->database = $database;
     $this->loggerFactory = $logger->get('recurring_events');
@@ -108,6 +119,7 @@ class EventCreationService {
     $this->entityFieldManager = $entity_field_manager;
     $this->moduleHandler = $module_handler;
     $this->entityTypeManager = $entity_type_manager;
+    $this->keyValueStore = $key_value;
   }
 
   /**
@@ -484,6 +496,54 @@ class EventCreationService {
     $entity->save();
 
     return $entity;
+  }
+
+  /**
+   * Configure the default field inheritances for event instances.
+   *
+   * @param Drupal\recurring_events\Entity\EventInstance $instance
+   *   The event instance.
+   * @param int $series_id
+   *   The event series entity ID.
+   *
+   * @return void
+   */
+  public function configureDefaultInheritances(EventInstance $instance, int $series_id = NULL) {
+    if (is_null($series_id)) {
+      $series_id = $instance->eventseries_id->value;
+    }
+
+    if (!empty($series_id)) {
+      // Configure the field inheritances for this instance.
+      $entity_type = $instance->getEntityTypeId();
+      $bundle = $instance->bundle();
+
+      $inherited_fields = $this->entityTypeManager->getStorage('field_inheritance')->loadByProperties([
+        'sourceEntityType' => 'eventseries',
+        'destinationEntityType' => $entity_type,
+        'destinationEntityBundle' => $bundle,
+      ]);
+
+      if (!empty($inherited_fields)) {
+        $state_key = $entity_type . ':' . $instance->uuid();
+        $state = $this->keyValueStore->get('field_inheritance');
+        $state_values = $state->get($state_key);
+        if (empty($state_values)) {
+          $state_values = [
+            'enabled' => TRUE,
+          ];
+          if (!empty($inherited_fields)) {
+            foreach ($inherited_fields as $inherited_field) {
+              $name = $inherited_field->idWithoutTypeAndBundle();
+              $state_values[$name] = [
+                'entity' => $series_id,
+              ];
+            }
+          }
+          $state->set($state_key, $state_values);
+        }
+      }
+    }
   }
 
   /**
