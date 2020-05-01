@@ -506,8 +506,6 @@ class EventCreationService {
    *   The event instance.
    * @param int $series_id
    *   The event series entity ID.
-   *
-   * @return void
    */
   public function configureDefaultInheritances(EventInstance $instance, int $series_id = NULL) {
     if (is_null($series_id)) {
