@@ -551,12 +551,12 @@ class EventCreationService {
    * When adding a new field inheritance, add the default values for it.
    *
    * @param Drupal\recurring_events\Entity\EventInstance $instance
-   *   The event instance.
-   *
-   * @return void
+   *   The event instance for which to configure default inheritance values.
+   * @param Drupal\field_inheritance\Entity\FieldInheritanceInterface $field_inheritance
+   *   The field inheritance being created or updated.
    */
   public function addNewDefaultInheritance(EventInstance $instance, FieldInheritanceInterface $field_inheritance) {
-    $state_key =  'eventinstance:' . $instance->uuid();
+    $state_key = 'eventinstance:' . $instance->uuid();
     $state = $this->keyValueStore->get('field_inheritance');
     $state_values = $state->get($state_key);
     $name = $field_inheritance->idWithoutTypeAndBundle();
