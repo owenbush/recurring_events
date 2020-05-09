@@ -139,6 +139,7 @@ class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
           '#title' => $date_string,
           '#url' => $uri,
           '#options' => $uri->getOptions(),
+          '#eventinstance' => $entity,
         ];
 
         if (!empty($items[$delta]->_attributes)) {
@@ -150,14 +151,17 @@ class EventInstanceDateFormatter extends EntityReferenceFormatterBase {
         }
       }
       else {
-        $elements[$delta] = ['#plain_text' => $date_string];
+        $elements[$delta] = [
+          '#plain_text' => $date_string,
+          '#eventinstance' => $entity,
+        ];
       }
       $elements[$delta]['#cache']['tags'] = $entity->getCacheTags();
     }
 
     usort($elements, function ($a, $b) {
-      $a_date = $a['#options']['entity']->date->start_date->getTimestamp();
-      $b_date = $b['#options']['entity']->date->start_date->getTimestamp();
+      $a_date = $a['#eventinstance']->date->start_date->getTimestamp();
+      $b_date = $b['#eventinstance']->date->start_date->getTimestamp();
       if ($a_date == $b_date) {
         return 0;
       }
