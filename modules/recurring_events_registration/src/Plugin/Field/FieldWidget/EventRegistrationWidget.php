@@ -58,7 +58,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     $element['registration_dates'] = [
       '#type' => 'radios',
       '#title' => $this->t('Registration Dates'),
-      '#description' => $this->t('Choose between open or scheduled registration.'),
+      '#description' => $this->t('Choose between open or scheduled registration. Open registration ends when the event begins.'),
       '#weight' => 2,
       '#default_value' => $items[$delta]->registration_dates ?: 'open',
       '#options' => [
@@ -106,24 +106,111 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       ],
     ];
 
-    $element['instance_registration']['time_amount'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Registration Time Amount'),
-      '#description' => $this->t('Enter the amount of time in days or hours before the event(s) start time(s) that registration should open.'),
+    $element['instance_registration']['instance_schedule_open'] = [
+      '#type' => 'select',
+      '#title' => $this->t('When Should Registration Open?'),
+      '#description' => $this->t('Select when to open registration'),
       '#weight' => 0,
-      '#default_value' => $items[$delta]->time_amount ?: '',
+      '#default_value' => $items[$delta]->instance_schedule_open,
+      '#options' => [
+        'now' => $this->t('Now'),
+        'start' => $this->t('At the start of the event'),
+        'custom' => $this->t('Before the start of the event'),
+      ],
+    ];
+
+    $element['instance_registration']['open_registration'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Open Schedule'),
+      '#weight' => 1,
+      '#states' => [
+        'visible' => [
+          ':input[name="event_registration[0][instance_registration][instance_schedule_open]"]' => ['value' => 'custom'],
+        ],
+      ],
+      '#description' => $this->t('Select how long before the event starts that registration should open'),
+    ];
+
+    $element['instance_registration']['open_registration']['instance_schedule_open_amount'] = [
+      '#type' => 'number',
+      '#title' => $this->t('By how much time?'),
+      '#weight' => 1,
+      '#default_value' => $items[$delta]->instance_schedule_open_amount ?? '1',
       '#min' => 0,
     ];
 
-    $element['instance_registration']['time_type'] = [
+    $element['instance_registration']['open_registration']['instance_schedule_open_units'] = [
       '#type' => 'select',
-      '#title' => $this->t('Registration Time Type'),
-      '#description' => $this->t("Select either Days or Hours to choose how long before which an event's registration will open."),
-      '#weight' => 1,
-      '#default_value' => $items[$delta]->time_type ?: '',
+      '#title' => '',
+      '#weight' => 2,
+      '#default_value' => $items[$delta]->instance_schedule_open_units ?? 'month',
       '#options' => [
-        'days' => $this->t('Days'),
-        'hours' => $this->t('Hours'),
+        'month' => $this->t('Months'),
+        'week' => $this->t('Weeks'),
+        'day' => $this->t('Days'),
+        'hour' => $this->t('Hours'),
+        'minute' => $this->t('Minutes'),
+        'second' => $this->t('Seconds'),
+      ],
+    ];
+
+    $element['instance_registration']['instance_schedule_close'] = [
+      '#type' => 'select',
+      '#title' => $this->t('When Should Registration Close?'),
+      '#description' => $this->t('Select when to close registration'),
+      '#weight' => 3,
+      '#default_value' => $items[$delta]->instance_schedule_close,
+      '#options' => [
+        'start' => $this->t('At the start of the event'),
+        'end' => $this->t('At the end of the event'),
+        'custom' => $this->t('Custom schedule'),
+      ],
+    ];
+
+    $element['instance_registration']['close_registration'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Close Schedule'),
+      '#weight' => 4,
+      '#states' => [
+        'visible' => [
+          ':input[name="event_registration[0][instance_registration][instance_schedule_close]"]' => ['value' => 'custom'],
+        ],
+      ],
+      '#description' => $this->t('Select how long before or after the event starts that registration should close'),
+    ];
+
+    $element['instance_registration']['close_registration']['instance_schedule_close_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Close Registration'),
+      '#weight' => 1,
+      '#default_value' => $items[$delta]->instance_schedule_close_type ?: '',
+      '#options' => [
+        'before' => $this->t('Before the event starts'),
+        'after' => $this->t('After the event starts'),
+      ],
+    ];
+
+    $element['instance_registration']['close_registration']['instance_schedule_close_amount'] = [
+      '#type' => 'number',
+      '#title' => $this->t('By How Much Time?'),
+      '#weight' => 2,
+      '#default_value' => $items[$delta]->instance_schedule_close_amount ?? '1',
+      '#min' => 0,
+    ];
+
+    $element['instance_registration']['close_registration']['instance_schedule_close_units'] = [
+      '#type' => 'select',
+      '#title' => '',
+      '#weight' => 3,
+      '#default_value' => $items[$delta]->instance_schedule_close_units ?? 'week',
+      '#min' => 0,
+      '#options' => [
+        'month' => $this->t('Months'),
+        'week' => $this->t('Weeks'),
+        'day' => $this->t('Days'),
+        'hour' => $this->t('Hours'),
+        'minute' => $this->t('Minutes'),
+        'second' => $this->t('Seconds'),
       ],
     ];
 
@@ -131,7 +218,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#type' => 'number',
       '#title' => $this->t('Total Number of Spaces Available'),
       '#description' => $this->t('Maximum number of attendees available for each series, or individual event. Leave blank for unlimited.'),
-      '#weight' => 4,
+      '#weight' => 5,
       '#default_value' => $items[$delta]->capacity ?: '',
       '#min' => 0,
       '#states' => [
@@ -145,7 +232,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Waiting List'),
       '#description' => $this->t('Enable a waiting list if the number of registrations reaches capacity.'),
-      '#weight' => 5,
+      '#weight' => 6,
       '#default_value' => $items[$delta]->waitlist ?: '',
       '#states' => [
         'visible' => [
