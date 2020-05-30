@@ -108,7 +108,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
     $element['instance_registration']['instance_schedule_open'] = [
       '#type' => 'select',
-      '#title' => $this->t('When Should Registration Open?'),
+      '#title' => $this->t('Registration Opens'),
       '#description' => $this->t('Select when to open registration'),
       '#weight' => 0,
       '#default_value' => $items[$delta]->instance_schedule_open,
@@ -120,20 +120,21 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     ];
 
     $element['instance_registration']['open_registration'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Open Schedule'),
+      '#type' => 'container',
       '#weight' => 1,
       '#states' => [
         'visible' => [
           ':input[name="event_registration[0][instance_registration][instance_schedule_open]"]' => ['value' => 'custom'],
         ],
       ],
-      '#description' => $this->t('Select how long before the event starts that registration should open'),
+      '#attributes' => [
+        'class' => 'container-inline',
+      ],
     ];
 
     $element['instance_registration']['open_registration']['instance_schedule_open_amount'] = [
       '#type' => 'number',
-      '#title' => $this->t('By how much time?'),
+      '#title' => '',
       '#weight' => 1,
       '#default_value' => $items[$delta]->instance_schedule_open_amount ?? '1',
       '#min' => 0,
@@ -145,18 +146,19 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#weight' => 2,
       '#default_value' => $items[$delta]->instance_schedule_open_units ?? 'month',
       '#options' => [
-        'month' => $this->t('Months'),
-        'week' => $this->t('Weeks'),
-        'day' => $this->t('Days'),
-        'hour' => $this->t('Hours'),
-        'minute' => $this->t('Minutes'),
-        'second' => $this->t('Seconds'),
+        'month' => $this->t('months'),
+        'week' => $this->t('weeks'),
+        'day' => $this->t('days'),
+        'hour' => $this->t('hours'),
+        'minute' => $this->t('minutes'),
+        'second' => $this->t('seconds'),
       ],
+      '#suffix' => $this->t('before the event starts'),
     ];
 
     $element['instance_registration']['instance_schedule_close'] = [
       '#type' => 'select',
-      '#title' => $this->t('When Should Registration Close?'),
+      '#title' => $this->t('Registration Closes'),
       '#description' => $this->t('Select when to close registration'),
       '#weight' => 3,
       '#default_value' => $items[$delta]->instance_schedule_close,
@@ -168,32 +170,22 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     ];
 
     $element['instance_registration']['close_registration'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Close Schedule'),
+      '#type' => 'container',
       '#weight' => 4,
       '#states' => [
         'visible' => [
           ':input[name="event_registration[0][instance_registration][instance_schedule_close]"]' => ['value' => 'custom'],
         ],
       ],
-      '#description' => $this->t('Select how long before or after the event starts that registration should close'),
-    ];
-
-    $element['instance_registration']['close_registration']['instance_schedule_close_type'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Close Registration'),
-      '#weight' => 1,
-      '#default_value' => $items[$delta]->instance_schedule_close_type ?: '',
-      '#options' => [
-        'before' => $this->t('Before the event starts'),
-        'after' => $this->t('After the event starts'),
+      '#attributes' => [
+        'class' => 'container-inline',
       ],
     ];
 
     $element['instance_registration']['close_registration']['instance_schedule_close_amount'] = [
       '#type' => 'number',
-      '#title' => $this->t('By How Much Time?'),
-      '#weight' => 2,
+      '#title' => '',
+      '#weight' => 1,
       '#default_value' => $items[$delta]->instance_schedule_close_amount ?? '1',
       '#min' => 0,
     ];
@@ -201,16 +193,27 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     $element['instance_registration']['close_registration']['instance_schedule_close_units'] = [
       '#type' => 'select',
       '#title' => '',
-      '#weight' => 3,
+      '#weight' => 2,
       '#default_value' => $items[$delta]->instance_schedule_close_units ?? 'week',
       '#min' => 0,
       '#options' => [
-        'month' => $this->t('Months'),
-        'week' => $this->t('Weeks'),
-        'day' => $this->t('Days'),
-        'hour' => $this->t('Hours'),
-        'minute' => $this->t('Minutes'),
-        'second' => $this->t('Seconds'),
+        'month' => $this->t('months'),
+        'week' => $this->t('weeks'),
+        'day' => $this->t('days'),
+        'hour' => $this->t('hours'),
+        'minute' => $this->t('minutes'),
+        'second' => $this->t('seconds'),
+      ],
+    ];
+
+    $element['instance_registration']['close_registration']['instance_schedule_close_type'] = [
+      '#type' => 'select',
+      '#title' => '',
+      '#weight' => 3,
+      '#default_value' => $items[$delta]->instance_schedule_close_type ?: '',
+      '#options' => [
+        'before' => $this->t('before the event starts'),
+        'after' => $this->t('after the event starts'),
       ],
     ];
 
