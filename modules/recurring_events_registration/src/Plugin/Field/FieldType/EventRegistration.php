@@ -52,12 +52,39 @@ class EventRegistration extends DateRangeItem {
       'unsigned' => TRUE,
     ];
 
-    $schema['columns']['time_amount'] = [
+    $schema['columns']['instance_schedule_open'] = [
+      'type' => 'varchar',
+      'length' => 255,
+    ];
+
+    $schema['columns']['instance_schedule_open_amount'] = [
       'type' => 'int',
+      'default' => 0,
       'unsigned' => TRUE,
     ];
 
-    $schema['columns']['time_type'] = [
+    $schema['columns']['instance_schedule_open_units'] = [
+      'type' => 'varchar',
+      'length' => 255,
+    ];
+
+    $schema['columns']['instance_schedule_close'] = [
+      'type' => 'varchar',
+      'length' => 255,
+    ];
+
+    $schema['columns']['instance_schedule_close_amount'] = [
+      'type' => 'int',
+      'default' => 0,
+      'unsigned' => TRUE,
+    ];
+
+    $schema['columns']['instance_schedule_close_units'] = [
+      'type' => 'varchar',
+      'length' => 255,
+    ];
+
+    $schema['columns']['instance_schedule_close_type'] = [
       'type' => 'varchar',
       'length' => 255,
     ];
@@ -74,11 +101,19 @@ class EventRegistration extends DateRangeItem {
     $registration_dates = $this->get('registration_dates')->getValue();
     $capacity = $this->get('capacity')->getValue();
     $waitlist = $this->get('waitlist')->getValue();
-    $time_amount = $this->get('time_amount')->getValue();
-    $time_type = $this->get('time_type')->getValue();
+    $instance_schedule_open = $this->get('instance_schedule_open')->getValue();
+    $instance_schedule_open_amount = $this->get('instance_schedule_open_amount')->getValue();
+    $instance_schedule_open_units = $this->get('instance_schedule_open_units')->getValue();
+    $instance_schedule_close = $this->get('instance_schedule_close')->getValue();
+    $instance_schedule_close_amount = $this->get('instance_schedule_close_amount')->getValue();
+    $instance_schedule_close_units = $this->get('instance_schedule_close_units')->getValue();
+    $instance_schedule_close_type = $this->get('instance_schedule_close_type')->getValue();
     return parent::isEmpty() && empty($registration) && empty($registration_type)
       && empty($registration_dates) && empty($capacity) && empty($waitlist)
-      && empty($time_amount) && empty($time_type);
+      && empty($instance_schedule_open) && empty($instance_schedule_open_amount)
+      && empty($instance_schedule_open_units) && empty($instance_schedule_close)
+      && empty($instance_schedule_close_amount) && empty($instance_schedule_close_units)
+      && empty($instance_schedule_close_type);
   }
 
   /**
@@ -107,13 +142,33 @@ class EventRegistration extends DateRangeItem {
       ->setLabel(t('Waitlist'))
       ->setDescription(t('Select whether to enable a waitlist.'));
 
-    $properties['time_amount'] = DataDefinition::create('integer')
-      ->setLabel(t('Registration Time Amount'))
-      ->setDescription(t('Select how many days or hours before the event registration opens.'));
+    $properties['instance_schedule_open'] = DataDefinition::create('string')
+      ->setLabel(t('Instance Registration Open'))
+      ->setDescription(t('Select when to open registrations.'));
 
-    $properties['time_type'] = DataDefinition::create('string')
-      ->setLabel(t('Registration Time Type'))
-      ->setDescription(t('Select either days or hours.'));
+    $properties['instance_schedule_open_amount'] = DataDefinition::create('integer')
+      ->setLabel(t('Instance Registration Open Time'))
+      ->setDescription(t('Select when to open registrations (number).'));
+
+    $properties['instance_schedule_open_units'] = DataDefinition::create('string')
+      ->setLabel(t('Instance Registration Open Unit'))
+      ->setDescription(t('Select when to open registrations (units).'));
+
+    $properties['instance_schedule_close'] = DataDefinition::create('string')
+      ->setLabel(t('Instance Registration Close'))
+      ->setDescription(t('Select when to close registrations.'));
+
+    $properties['instance_schedule_close_amount'] = DataDefinition::create('integer')
+      ->setLabel(t('Instance Registration Close Time'))
+      ->setDescription(t('Select when to close registrations (number).'));
+
+    $properties['instance_schedule_close_units'] = DataDefinition::create('string')
+      ->setLabel(t('Instance Registration Close Unit'))
+      ->setDescription(t('Select when to close registrations (units).'));
+
+    $properties['instance_schedule_close_type'] = DataDefinition::create('string')
+      ->setLabel(t('Instance Registration Close Type'))
+      ->setDescription(t('Select when to close registrations (type).'));
 
     return $properties;
   }

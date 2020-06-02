@@ -115,7 +115,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#options' => [
         'now' => $this->t('Now'),
         'start' => $this->t('At the start of the event'),
-        'custom' => $this->t('Before the start of the event'),
+        'custom' => $this->t('Custom schedule'),
       ],
     ];
 
@@ -254,8 +254,13 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     foreach ($values as &$item) {
       $item['value'] = $item['series_registration']['value'];
       $item['end_value'] = $item['series_registration']['end_value'];
-      $item['time_amount'] = (int) $item['instance_registration']['time_amount'];
-      $item['time_type'] = $item['instance_registration']['time_type'];
+      $item['instance_schedule_open'] = $item['instance_registration']['instance_schedule_open'];
+      $item['instance_schedule_open_amount'] = (int) $item['instance_registration']['open_registration']['instance_schedule_open_amount'];
+      $item['instance_schedule_open_units'] = $item['instance_registration']['open_registration']['instance_schedule_open_units'];
+      $item['instance_schedule_close'] = $item['instance_registration']['instance_schedule_close'];
+      $item['instance_schedule_close_amount'] = (int) $item['instance_registration']['close_registration']['instance_schedule_close_amount'];
+      $item['instance_schedule_close_units'] = $item['instance_registration']['close_registration']['instance_schedule_close_units'];
+      $item['instance_schedule_close_type'] = $item['instance_registration']['close_registration']['instance_schedule_close_type'];
       $item['capacity'] = (int) $item['capacity'];
       unset($item['series_registration']);
       unset($item['instance_registration']);
@@ -288,12 +293,32 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
         $item['waitlist'] = 0;
       }
 
-      if (empty($item['time_amount'])) {
-        $item['time_amount'] = 0;
+      if (empty($item['instance_schedule_open'])) {
+        $item['instance_schedule_open'] = '';
       }
 
-      if (empty($item['time_type'])) {
-        $item['time_type'] = '';
+      if (empty($item['instance_schedule_open_amount'])) {
+        $item['instance_schedule_open_amount'] = 0;
+      }
+
+      if (empty($item['instance_schedule_open_units'])) {
+        $item['instance_schedule_open_units'] = '';
+      }
+
+      if (empty($item['instance_schedule_close'])) {
+        $item['instance_schedule_close'] = '';
+      }
+
+      if (empty($item['instance_schedule_close_amount'])) {
+        $item['instance_schedule_close_amount'] = 0;
+      }
+
+      if (empty($item['instance_schedule_close_units'])) {
+        $item['instance_schedule_close_units'] = '';
+      }
+
+      if (empty($item['instance_schedule_close_type'])) {
+        $item['instance_schedule_close_type'] = '';
       }
 
     }

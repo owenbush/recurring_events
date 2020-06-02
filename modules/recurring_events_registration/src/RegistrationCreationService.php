@@ -345,6 +345,38 @@ class RegistrationCreationService {
   }
 
   /**
+   * Get instance registration open schedule type.
+   *
+   * @return string
+   *   The type of open registration schedule: now, start, or custom.
+   */
+  public function getInstanceRegistrationOpenScheduleType() {
+    $type = FALSE;
+
+    if (!empty($this->eventSeries->event_registration->instance_schedule_open)) {
+      $type = $this->eventSeries->event_registration->instance_schedule_open;
+    }
+
+    return $type;
+  }
+
+  /**
+   * Get instance registration close schedule type.
+   *
+   * @return string
+   *   The type of close registration schedule: start, end, or custom.
+   */
+  public function getInstanceRegistrationCloseScheduleType() {
+    $type = FALSE;
+
+    if (!empty($this->eventSeries->event_registration->instance_schedule_close)) {
+      $type = $this->eventSeries->event_registration->instance_schedule_close;
+    }
+
+    return $type;
+  }
+
+  /**
    * Get registration dates type.
    *
    * @return string
@@ -361,32 +393,75 @@ class RegistrationCreationService {
   }
 
   /**
-   * Get registration time.
+   * Get instance registration open time modifier.
    *
    * @return string
-   *   The time before each event that registration opens.
+   *   The modifier for the opening time relative to the event start.
    */
-  public function getRegistrationTime() {
-    $time = FALSE;
+  public function getInstanceRegistrationOpenTimeModifier() {
+    $modifier = FALSE;
 
-    if (!empty($this->eventSeries->event_registration->time_amount) && !empty($this->getRegistrationTimeUnit())) {
-      $time = $this->eventSeries->event_registration->time_amount . ' ' . $this->getRegistrationTimeUnit();
+    if (!empty($this->eventSeries->event_registration->instance_schedule_open_amount) && !empty($this->getInstanceRegistrationOpenTimeUnit())) {
+      $modifier = $this->eventSeries->event_registration->instance_schedule_open_amount . ' ' . $this->getInstanceRegistrationOpenTimeUnit();
+      $modifier = '- ' . $modifier;
     }
 
-    return $time;
+    return $modifier;
   }
 
   /**
-   * Get registration time unit.
+   * Get instance registration open time unit.
    *
    * @return string
-   *   The unit used to define the registration time, days or hours.
+   *   The unit used to define the open registration time.
    */
-  public function getRegistrationTimeUnit() {
+  public function getInstanceRegistrationOpenTimeUnit() {
     $unit = FALSE;
 
-    if (!empty($this->eventSeries->event_registration->time_type)) {
-      $unit = $this->eventSeries->event_registration->time_type;
+    if (!empty($this->eventSeries->event_registration->instance_schedule_open_units)) {
+      $unit = $this->eventSeries->event_registration->instance_schedule_open_units;
+    }
+
+    return $unit;
+  }
+
+  /**
+   * Get instance registration close time modifier.
+   *
+   * @return string
+   *   The modifier for the closing time relative to the event start.
+   */
+  public function getInstanceRegistrationCloseTimeModifier() {
+    $modifier = FALSE;
+
+    if (!empty($this->eventSeries->event_registration->instance_schedule_close_amount) && !empty($this->getInstanceRegistrationCloseTimeUnit())) {
+      $modifier = $this->eventSeries->event_registration->instance_schedule_close_amount . ' ' . $this->getInstanceRegistrationCloseTimeUnit();
+      switch ($this->eventSeries->event_registration->instance_schedule_close_type) {
+        case 'after':
+          $modifier = '+ ' . $modifier;
+          break;
+
+        case 'before':
+        default:
+          $modifier = '- ' . $modifier;
+          break;
+      }
+    }
+
+    return $modifier;
+  }
+
+  /**
+   * Get instance registration close time unit.
+   *
+   * @return string
+   *   The unit used to define the close registration time.
+   */
+  public function getInstanceRegistrationCloseTimeUnit() {
+    $unit = FALSE;
+
+    if (!empty($this->eventSeries->event_registration->instance_schedule_close_units)) {
+      $unit = $this->eventSeries->event_registration->instance_schedule_close_units;
     }
 
     return $unit;
@@ -473,17 +548,43 @@ class RegistrationCreationService {
               break;
 
             case 'instance':
-              $reg_time_string = $this->getRegistrationTime();
+              $event_start_date = $this->eventInstance->date->start_date;
+              $event_end_date = $this->eventInstance->date->end_date;
 
-              if (!empty($reg_time_string)) {
-                $event_date = $this->eventInstance->date->start_date;
+              // Calculate registration opening time.
+              switch ($this->getInstanceRegistrationOpenScheduleType()) {
+                case 'now':
+                  $reg_start = new DrupalDateTime();
+                  break;
 
-                $reg_end = clone $event_date;
-                $reg_start = clone $event_date;
+                case 'start':
+                  $reg_start = clone $event_start_date;
+                  break;
 
-                // Subtract the number of days/hours from the event start date.
-                $reg_start->modify('-' . $reg_time_string);
+                case 'custom':
+                  $open_time_modifier = $this->getInstanceRegistrationOpenTimeModifier();
+                  $reg_start = clone $event_start_date;
+                  $reg_start->modify($open_time_modifier);
+                  break;
               }
+
+              // Calculate registration closing time.
+              switch ($this->getInstanceRegistrationCloseScheduleType()) {
+                case 'start':
+                  $reg_end = clone $event_start_date;
+                  break;
+
+                case 'end':
+                  $reg_end = clone $event_end_date;
+                  break;
+
+                case 'custom':
+                  $close_time_modifier = $this->getInstanceRegistrationCloseTimeModifier();
+                  $reg_end = clone $event_start_date;
+                  $reg_end->modify($close_time_modifier);
+                  break;
+              }
+
               break;
           }
 
