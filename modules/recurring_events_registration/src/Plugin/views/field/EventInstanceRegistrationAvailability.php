@@ -51,7 +51,7 @@ class EventInstanceRegistrationAvailability extends FieldPluginBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('recurring_events_registration.creation_service'),
+      $container->get('recurring_events_registration.creation_service')
     );
   }
 
