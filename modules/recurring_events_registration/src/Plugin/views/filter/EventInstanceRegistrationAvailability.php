@@ -3,11 +3,9 @@
 namespace Drupal\recurring_events_registration\Plugin\views\filter;
 
 use Drupal\views\Plugin\views\filter\FilterPluginBase;
-use Drupal\views\ResultRow;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\recurring_events_registration\RegistrationCreationService;
-
 
 /**
  * Filter handler to show the availability of registrations for event instances.
@@ -59,14 +57,29 @@ class EventInstanceRegistrationAvailability extends FilterPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function adminSummary() {
-    return $this->options['available'];
+  public function canExpose() {
+    return TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function operatorForm(&$form, FormStateInterface $form_state) {}
+  protected function canBuildGroup() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function adminSummary() {
+    if ($this->isAGroup()) {
+      return $this->t('grouped');
+    }
+    if (!empty($this->options['exposed'])) {
+      return $this->t('exposed');
+    }
+    return $this->options['value'];
+  }
 
   /**
    * {@inheritdoc}
@@ -82,18 +95,75 @@ class EventInstanceRegistrationAvailability extends FilterPluginBase {
   /**
    * {@inheritdoc}
    */
+  public function getValueOptions() {
+    if (isset($this->valueOptions)) {
+      return $this->valueOptions;
+    }
+    $this->valueOptions = [
+      'available' => $this->t('Spaces Available'),
+      'full' => $this->t('Event Full'),
+    ];
+    return $this->valueOptions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
-    $form['available'] = [
-      '#title' => $this->t('Availability.'),
-      '#type' => 'select',
-      '#options' => [
-        'available' => $this->t('Spaces Available'),
-        'full' => $this->t('Event Full'),
-      ],
-      '#multiple' => FALSE,
-      '#default_value' => $this->options['available'],
-    ];
+
+    $default_value = (array) $this->value;
+
+    $exposed = $form_state->get('exposed');
+    if ($exposed) {
+      if (empty($default_value)) {
+        $keys = array_keys($this->getValueOptions());
+        $default_value = array_shift($keys);
+      }
+      else {
+        $copy = $default_value;
+        $default_value = array_shift($copy);
+      }
+    }
+
+    if (!$this->isExposed()) {
+      $form['value'] = [
+        '#title' => $this->t('Availability.'),
+        '#type' => 'select',
+        '#options' => $this->getValueOptions(),
+        '#default_value' => $default_value,
+      ];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function valueForm(&$form, FormStateInterface $form_state) {
+    parent::valueForm($form, $form_state);
+
+    $default_value = (array) $this->value;
+
+    $exposed = $form_state->get('exposed');
+    if ($exposed) {
+      if (empty($default_value)) {
+        $keys = array_keys($this->getValueOptions());
+        $default_value = array_shift($keys);
+      }
+      else {
+        $copy = $default_value;
+        $default_value = array_shift($copy);
+      }
+    }
+
+    if ($this->isExposed()) {
+      $form['value'] = [
+        '#title' => $this->t('Availability.'),
+        '#type' => 'select',
+        '#options' => $this->getValueOptions(),
+        '#default_value' => $default_value,
+      ];
+    }
   }
 
   /**
@@ -123,12 +193,17 @@ class EventInstanceRegistrationAvailability extends FilterPluginBase {
     $view->preExecute();
     $view->execute();
 
+    $available = $this->value;
+    if (is_array($available)) {
+      $available = reset($this->value);
+    }
+
     if (!empty($view->result)) {
       foreach ($view->result as $key => $result) {
         $this->registrationCreationService->setEventInstance($result->_entity);
         $availability = $this->registrationCreationService->retrieveAvailability();
 
-        switch ($this->options['available']) {
+        switch ($available) {
           // Filtering for available events means unlimited availability of an
           // availability greater than zero.
           case 'available':
