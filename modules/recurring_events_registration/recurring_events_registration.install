@@ -175,3 +175,34 @@ function recurring_events_registration_update_8003() {
     }
   }
 }
+
+/**
+ * Install the new status basfield for registrants
+ */
+function recurring_events_registration_update_8004() {
+  $status = BaseFieldDefinition::create('boolean')
+  ->setRevisionable(TRUE)
+  ->setLabel(t('Status'))
+  ->setDescription(t('A boolean indicating whether the registrant is complete.'))
+  ->setDefaultValue(TRUE)
+  ->setSetting('on_label', 'Status')
+  ->setDisplayOptions('form', [
+    'type' => 'boolean_checkbox',
+    'settings' => [
+      'display_label' => FALSE,
+    ],
+    'weight' => 0,
+  ])
+  ->setDisplayConfigurable('form', TRUE)
+  ->setDisplayOptions('view', [
+    'type' => 'boolean',
+    'label' => 'above',
+    'weight' => 0,
+    'settings' => [
+      'format' => 'enabled-disabled',
+    ],
+  ])
+  ->setDisplayConfigurable('view', FALSE);
+
+  \Drupal::entityDefinitionUpdateManager()->installFieldStorageDefinition('bundle', 'registrant', 'registrant', $status);
+}

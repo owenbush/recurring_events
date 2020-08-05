@@ -4,7 +4,7 @@ namespace Drupal\recurring_events_registration\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\UserInterface;
@@ -37,15 +37,23 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *     "access" = "Drupal\recurring_events_registration\RegistrantAccessControlHandler",
  *   },
  *   base_table = "registrant",
+ *   revision_table = "registrant_revision",
+ *   show_revision_ui = TRUE,
  *   translatable = FALSE,
  *   fieldable = TRUE,
  *   admin_permission = "administer registrant entities",
  *   entity_keys = {
  *     "id" = "id",
+ *     "revision" = "revision_id",
  *     "uuid" = "uuid",
  *     "uid" = "user_id",
  *     "label" = "title",
  *     "bundle" = "bundle",
+ *   },
+ *   revision_metadata_keys = {
+ *     "revision_user" = "revision_uid",
+ *     "revision_created" = "revision_timestamp",
+ *     "revision_log_message" = "revision_log"
  *   },
  *   links = {
  *     "canonical" = "/events/{eventinstance}/registrations//{registrant}",
@@ -58,7 +66,7 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *   field_ui_base_route = "entity.registrant_type.edit_form"
  * )
  */
-class Registrant extends ContentEntityBase implements RegistrantInterface {
+class Registrant extends RevisionableContentEntityBase implements RegistrantInterface {
 
   use EntityChangedTrait;
 
@@ -112,6 +120,14 @@ class Registrant extends ContentEntityBase implements RegistrantInterface {
   /**
    * {@inheritdoc}
    */
+  public function setStatus($status) {
+    $this->set('status', $status);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getOwner() {
     return $this->get('user_id')->entity;
   }
@@ -147,6 +163,7 @@ class Registrant extends ContentEntityBase implements RegistrantInterface {
 
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Authored by'))
+      ->setRevisionable(TRUE)
       ->setDescription(t('The user ID of author of the Registrant entity.'))
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
@@ -171,6 +188,7 @@ class Registrant extends ContentEntityBase implements RegistrantInterface {
 
     $fields['email'] = BaseFieldDefinition::create('email')
       ->setLabel(t('Email Address'))
+      ->setRevisionable(TRUE)
       ->setDescription(t('The email address of the registrant'))
       ->setDisplayOptions('form', [
         'type' => 'email_default',
@@ -205,6 +223,7 @@ class Registrant extends ContentEntityBase implements RegistrantInterface {
       ->setSetting('target_type', 'eventinstance');
 
     $fields['waitlist'] = BaseFieldDefinition::create('boolean')
+      ->setRevisionable(TRUE)
       ->setLabel(t('Waitlist'))
       ->setDescription(t('Whether this registrant is waitlisted.'));
 
@@ -229,6 +248,30 @@ class Registrant extends ContentEntityBase implements RegistrantInterface {
       ->setReadOnly(TRUE)
       ->setComputed(TRUE)
       ->setClass(ComputedRegistrantTitleFieldItemList::class);
+
+    $fields['status'] = BaseFieldDefinition::create('boolean')
+      ->setRevisionable(TRUE)
+      ->setLabel(t('Status'))
+      ->setDescription(t('A boolean indicating whether the registrant is complete.'))
+      ->setDefaultValue(TRUE)
+      ->setSetting('on_label', 'Status')
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'settings' => [
+          'display_label' => FALSE,
+        ],
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'type' => 'boolean',
+        'label' => 'above',
+        'weight' => 0,
+        'settings' => [
+          'format' => 'enabled-disabled',
+        ],
+      ])
+      ->setDisplayConfigurable('view', FALSE);
 
     return $fields;
   }
