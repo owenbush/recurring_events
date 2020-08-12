@@ -100,6 +100,7 @@ class RegistrantListBuilder extends EntityListBuilder {
     }
     $header['email'] = $this->t('Email');
     $header['waitlist'] = $this->t('Waitlist');
+    $header['status'] = $this->t('Status');
     return $header + parent::buildHeader();
   }
 
@@ -123,6 +124,7 @@ class RegistrantListBuilder extends EntityListBuilder {
     }
     $row['email'] = $entity->get('email')->value;
     $row['waitlist'] = $entity->get('waitlist')->value ? $this->t('Yes') : $this->t('No');
+    $row['status'] = $entity->get('status')->value ? $this->t('Complete') : $this->t('Pending');
     return $row + parent::buildRow($entity);
   }
 

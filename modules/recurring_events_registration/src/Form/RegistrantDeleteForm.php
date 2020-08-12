@@ -189,7 +189,7 @@ class RegistrantDeleteForm extends ContentEntityDeleteForm {
    * {@inheritdoc}
    */
   protected function getDeletionMessage() {
-    /** @var \Drupal\omega_events\EventInterface $entity */
+    /** @var \Drupal\recurring_events\EventInterface $entity */
     $entity = $this->getEntity();
 
     return $this->t('Your registration for %email for %event has been cancelled.', [

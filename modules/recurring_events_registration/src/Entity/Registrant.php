@@ -49,11 +49,12 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *     "uid" = "user_id",
  *     "label" = "title",
  *     "bundle" = "bundle",
+ *     "status" = "status"
  *   },
  *   revision_metadata_keys = {
- *     "revision_user" = "revision_uid",
- *     "revision_created" = "revision_timestamp",
- *     "revision_log_message" = "revision_log"
+ *     "revision_user" = "revision_user",
+ *     "revision_created" = "revision_created",
+ *     "revision_log_message" = "revision_log_message"
  *   },
  *   links = {
  *     "canonical" = "/events/{eventinstance}/registrations//{registrant}",
@@ -240,6 +241,7 @@ class Registrant extends RevisionableContentEntityBase implements RegistrantInte
       ->setDescription(t('The time that the entity was created.'));
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setRevisionable(TRUE)
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
 
@@ -252,15 +254,15 @@ class Registrant extends RevisionableContentEntityBase implements RegistrantInte
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setRevisionable(TRUE)
       ->setLabel(t('Status'))
-      ->setDescription(t('A boolean indicating whether the registrant is complete.'))
+      ->setDescription(t('Is this registration complete?'))
       ->setDefaultValue(TRUE)
-      ->setSetting('on_label', 'Status')
+      ->setSetting('on_label', 'Complete')
       ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
         'settings' => [
           'display_label' => FALSE,
         ],
-        'weight' => 0,
+        'weight' => 100,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [

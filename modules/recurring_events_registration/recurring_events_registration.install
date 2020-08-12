@@ -177,32 +177,70 @@ function recurring_events_registration_update_8003() {
 }
 
 /**
- * Install the new status basfield for registrants
+ * Install the new status field.
  */
 function recurring_events_registration_update_8004() {
-  $status = BaseFieldDefinition::create('boolean')
-  ->setRevisionable(TRUE)
-  ->setLabel(t('Status'))
-  ->setDescription(t('A boolean indicating whether the registrant is complete.'))
-  ->setDefaultValue(TRUE)
-  ->setSetting('on_label', 'Status')
-  ->setDisplayOptions('form', [
-    'type' => 'boolean_checkbox',
-    'settings' => [
-      'display_label' => FALSE,
-    ],
-    'weight' => 0,
-  ])
-  ->setDisplayConfigurable('form', TRUE)
-  ->setDisplayOptions('view', [
-    'type' => 'boolean',
-    'label' => 'above',
-    'weight' => 0,
-    'settings' => [
-      'format' => 'enabled-disabled',
-    ],
-  ])
-  ->setDisplayConfigurable('view', FALSE);
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
 
-  \Drupal::entityDefinitionUpdateManager()->installFieldStorageDefinition('bundle', 'registrant', 'registrant', $status);
+  // Add the status field.
+  $status = BaseFieldDefinition::create('boolean')
+    ->setLabel(t('Status'))
+    ->setDescription(t('Is this registration complete?'))
+    ->setDefaultValue(FALSE)
+    ->setInitialValue(FALSE)
+    ->setSetting('on_label', 'Complete')
+    ->setDisplayOptions('form', [
+      'type' => 'boolean_checkbox',
+      'settings' => [
+        'display_label' => FALSE,
+      ],
+      'weight' => 100,
+    ])
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayOptions('view', [
+      'type' => 'boolean',
+      'label' => 'above',
+      'weight' => 0,
+      'settings' => [
+        'format' => 'enabled-disabled',
+      ],
+    ])
+    ->setDisplayConfigurable('view', FALSE);
+  $definition_update_manager->installFieldStorageDefinition('status', 'registrant', 'registrant', $status);
+}
+
+/**
+ * Update existing registrants to be marked as completed.
+ */
+function recurring_events_registration_update_8005(&$sandbox) {
+  // This is a multipass update.
+  // Grab all the registrants.
+  if (empty($sandbox['registrants'])) {
+    $registrants = \Drupal::entityTypeManager()
+      ->getStorage('registrant')
+      ->getQuery()
+      ->execute();
+
+    $sandbox['registrants'] = $registrants;
+    $sandbox['max'] = count($registrants);
+    $sandbox['limit'] = 20;
+    $sandbox['progress'] = 0;
+  }
+
+  if (count($sandbox['registrants']) > 0) {
+    // Loop through chunks of 20 registrants at a time.
+    $registrant_ids = array_splice($sandbox['registrants'], 0, $sandbox['limit'], []);
+    if (!empty($registrant_ids)) {
+      $registrants = \Drupal::entityTypeManager()->getStorage('registrant')->loadMultiple($registrant_ids);
+      foreach ($registrants as $registrant) {
+        $registrant->status = 1;
+        $registrant->save();
+        $sandbox['progress']++;
+      }
+      $sandbox['#finished'] = ($sandbox['progress'] / $sandbox['max']);
+    }
+  }
+  else {
+    $sandbox['#finished'] = 1;
+  }
 }

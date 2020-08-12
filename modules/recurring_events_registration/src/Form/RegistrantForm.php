@@ -313,9 +313,9 @@ class RegistrantForm extends ContentEntityForm {
 
     // Prevent the form being displayed if registration is closed, or there are
     // no spaces left, and no waitlist.
-    if (($availability === 0 && !$waitlist) || !$registration_open) {
+    if ((($availability === 0 && !$waitlist) || !$registration_open) && $new) {
       foreach ($form_fields as $field_name => $field) {
-        if (isset($form[$field_name]) && $new) {
+        if (isset($form[$field_name])) {
           $form[$field_name]['#printed'] = TRUE;
         }
       }
@@ -339,7 +339,7 @@ class RegistrantForm extends ContentEntityForm {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 
-    /* @var $entity \Drupal\omega_events\Entity\Registrant */
+    /* @var $entity \Drupal\recurring_events\Entity\Registrant */
     $entity = $this->entity;
 
     // Only perform the checks if the entity is new.
@@ -388,6 +388,9 @@ class RegistrantForm extends ContentEntityForm {
     $event_instance = $this->routeMatch->getParameter('eventinstance');
     $event_series = $event_instance->getEventSeries();
 
+    /* @var $entity \Drupal\recurring_events\Entity\Registrant */
+    $entity = $this->entity;
+
     // Use the registration creation service to grab relevant data.
     $this->creationService->setEventInstance($event_instance);
     // Just to be sure we have a fresh copy of the event series.
@@ -401,7 +404,7 @@ class RegistrantForm extends ContentEntityForm {
 
     $form_state->setRedirect('entity.registrant.add_form', ['eventinstance' => $event_instance->id()]);
 
-    if ($registration && $registration_open && ($availability > 0 || $waitlist)) {
+    if (($registration && $registration_open && ($availability > 0 || $waitlist)) || !$entity->isNew()) {
       $add_to_waitlist = (int) $form_state->getValue('add_to_waitlist');
       $this->entity->setEventSeries($event_series);
       $this->entity->setEventInstance($event_instance);
