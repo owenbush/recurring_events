@@ -8,3 +8,7 @@ services:
   recurring_events_registration.access_handler:
     class: Drupal\recurring_events_registration\AccessHandler
     arguments: ['@string_translation', '@recurring_events_registration.creation_service', '@current_route_match', '@entity_type.manager']
+  recurring_events_registration.route_subscriber:
+    class: Drupal\recurring_events_registration\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

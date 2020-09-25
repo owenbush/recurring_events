@@ -15,6 +15,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Drupal\content_moderation\ModerationInformation;
 
 /**
  * Form controller for Registrant edit forms.
@@ -80,6 +81,13 @@ class RegistrantForm extends ContentEntityForm {
   protected $cacheTagsInvalidator;
 
   /**
+   * The moderation information service.
+   *
+   * @var \Drupal\content_moderation\ModerationInformation
+   */
+  protected $moderationInformation;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -92,7 +100,8 @@ class RegistrantForm extends ContentEntityForm {
       $container->get('entity_field.manager'),
       $container->get('current_route_match'),
       $container->get('entity_type.manager'),
-      $container->get('cache_tags.invalidator')
+      $container->get('cache_tags.invalidator'),
+      $container->get('content_moderation.moderation_information')
     );
   }
 
@@ -117,6 +126,8 @@ class RegistrantForm extends ContentEntityForm {
    *   The entity type manager service.
    * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cache_tags_invalidator
    *   The cache tags invalidator.
+   * @param \Drupal\content_moderation\ModerationInformation $moderation_information
+   *   The moderation information service.
    */
   public function __construct(
     EntityRepositoryInterface $entity_repository,
@@ -127,7 +138,8 @@ class RegistrantForm extends ContentEntityForm {
     EntityFieldManager $field_manager,
     RouteMatchInterface $route_match,
     EntityTypeManagerInterface $entity_type_manager,
-    CacheTagsInvalidatorInterface $cache_tags_invalidator) {
+    CacheTagsInvalidatorInterface $cache_tags_invalidator,
+    ModerationInformation $moderation_information) {
     $this->messenger = $messenger;
     $this->creationService = $creation_service;
     $this->currentUser = $current_user;
@@ -136,6 +148,7 @@ class RegistrantForm extends ContentEntityForm {
     $this->routeMatch = $route_match;
     $this->entityTypeManager = $entity_type_manager;
     $this->cacheTagsInvalidator = $cache_tags_invalidator;
+    $this->moderationInformation = $moderation_information;
     parent::__construct($entity_repository);
   }
 
@@ -331,6 +344,11 @@ class RegistrantForm extends ContentEntityForm {
     if (!$this->currentUser->hasPermission('modify registrant author')) {
       $form['user_id']['#access'] = FALSE;
     }
+
+    if (!$this->currentUser->hasPermission('administer registrant entity')) {
+      $form['revision_information']['#access'] = FALSE;
+      $form['status']['#access'] = FALSE;
+    }
   }
 
   /**
@@ -388,7 +406,7 @@ class RegistrantForm extends ContentEntityForm {
     $event_instance = $this->routeMatch->getParameter('eventinstance');
     $event_series = $event_instance->getEventSeries();
 
-    /* @var $entity \Drupal\recurring_events\Entity\Registrant */
+    /* @var $entity \Drupal\recurring_events\Entity\RegistrantInterface */
     $entity = $this->entity;
 
     // Use the registration creation service to grab relevant data.
@@ -401,8 +419,6 @@ class RegistrantForm extends ContentEntityForm {
     $registration_open = $this->creationService->registrationIsOpen();
     $reg_type = $this->creationService->getRegistrationType();
     $registration = $this->creationService->hasRegistration();
-
-    $form_state->setRedirect('entity.registrant.add_form', ['eventinstance' => $event_instance->id()]);
 
     if (($registration && $registration_open && ($availability > 0 || $waitlist)) || !$entity->isNew()) {
       $add_to_waitlist = (int) $form_state->getValue('add_to_waitlist');
@@ -448,6 +464,17 @@ class RegistrantForm extends ContentEntityForm {
       $this->messenger->addMessage($this->t('Unfortunately, registration is not available at this time.'));
     }
 
+    $form_state->setRedirect('entity.registrant.add_form', ['eventinstance' => $event_instance->id()]);
+
+    // @TODO: Remove when https://www.drupal.org/node/3173241 drops.
+    if ($this->moderationInformation) {
+      if ($this->moderationInformation->hasPendingRevision($entity) && $entity->hasLinkTemplate('latest-version')) {
+        $form_state->setRedirect('entity.registrant.latest_version', [
+          'eventinstance' => $entity->getEventInstance()->id(),
+          'registrant' => $entity->id(),
+        ]);
+      }
+    }
   }
 
 }

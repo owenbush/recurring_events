@@ -10,11 +10,13 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\recurring_events_registration\Entity\Registrant;
 use Drupal\recurring_events\Entity\EventSeries;
 use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\recurring_events_registration\Entity\RegistrantInterface;
+use Drupal\recurring_events_registration\Form\RegistrantForm;
 
 /**
  * Implements hook_help().
@@ -254,10 +256,10 @@ function recurring_events_registration_recurring_events_pre_delete_instances(Eve
  *
  * @param string $key
  *   The mail key used to determine the message and subject.
- * @param \Drupal\recurring_events_registration\Entity\Registrant $registrant
+ * @param \Drupal\recurring_events_registration\Entity\RegistrantInterface $registrant
  *   The registrant this email relates to.
  */
-function recurring_events_registration_send_notification($key, Registrant $registrant) {
+function recurring_events_registration_send_notification($key, RegistrantInterface $registrant) {
   $config = \Drupal::config('recurring_events_registration.registrant.config');
   $send_email = $config->get('email_notifications');
   if ($send_email) {
@@ -362,5 +364,43 @@ function recurring_events_registration_registrant_insert(EntityInterface $entity
       }
     }
     $state->set($state_key, $state_values);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * @TODO: Remove when https://www.drupal.org/node/3173241 drops.
+ */
+function recurring_events_registration_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  /* @var \Drupal\recurring_events_registration\Form\RegistrantForm $form_object */
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof RegistrantForm)
+    /* @var \Drupal\recurring_events_registration\Entity\RegistrantInterface $entity */
+    $entity = $form_object->getEntity();
+    if (!empty($entity) && $entity instanceof RegistrantInterface && $entity->getEntityTypeId() === 'registrant') {
+      foreach ($form['actions']['submit']['#submit'] as $key => $submit) {
+        if (is_array($submit) && $submit[0] === 'Drupal\content_moderation\EntityTypeInfo') {
+          unset($form['actions']['submit']['#submit'][$key]);
+        }
+      }
+    }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * @TODO: Remove when https://www.drupal.org/node/3173241 drops.
+ */
+function recurring_events_registration_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter') {
+    // Move recurring_events_registration_form_alter() to the end of the
+    // list because we need to make sure we override the content moderation
+    // latest-version link template to also pass through the eventinstance ID to
+    // the URL.
+    // @see recurring_events_registration_form_alter().
+    $group = $implementations['recurring_events_registration'];
+    unset($implementations['recurring_events_registration']);
+    $implementations['recurring_events_registration'] = $group;
   }
 }

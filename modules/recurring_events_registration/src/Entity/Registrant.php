@@ -4,7 +4,7 @@ namespace Drupal\recurring_events_registration\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Entity\RevisionableContentEntityBase;
+use Drupal\Core\Entity\EditorialContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\UserInterface;
@@ -49,7 +49,8 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *     "uid" = "user_id",
  *     "label" = "title",
  *     "bundle" = "bundle",
- *     "status" = "status"
+ *     "status" = "status",
+ *     "published" = "status",
  *   },
  *   revision_metadata_keys = {
  *     "revision_user" = "revision_user",
@@ -57,8 +58,8 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *     "revision_log_message" = "revision_log_message"
  *   },
  *   links = {
- *     "canonical" = "/events/{eventinstance}/registrations//{registrant}",
- *     "edit-form" = "/events/{eventinstance}/registrations//{registrant}/edit",
+ *     "canonical" = "/events/{eventinstance}/registrations/{registrant}",
+ *     "edit-form" = "/events/{eventinstance}/registrations/{registrant}/edit",
  *     "delete-form" = "/events/{eventinstance}/registrations/{registrant}/delete",
  *     "anon-edit-form" = "/events/{eventinstance}/registrations/{registrant}/{uuid}/edit",
  *     "anon-delete-form" = "/events/{eventinstance}/registrations/{registrant}/{uuid}/delete"
@@ -67,7 +68,7 @@ use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFie
  *   field_ui_base_route = "entity.registrant_type.edit_form"
  * )
  */
-class Registrant extends RevisionableContentEntityBase implements RegistrantInterface {
+class Registrant extends EditorialContentEntityBase implements RegistrantInterface {
 
   use EntityChangedTrait;
 
@@ -251,29 +252,17 @@ class Registrant extends RevisionableContentEntityBase implements RegistrantInte
       ->setComputed(TRUE)
       ->setClass(ComputedRegistrantTitleFieldItemList::class);
 
-    $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setRevisionable(TRUE)
+      $fields['status']
       ->setLabel(t('Status'))
       ->setDescription(t('Is this registration complete?'))
-      ->setDefaultValue(TRUE)
-      ->setSetting('on_label', 'Complete')
       ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
         'settings' => [
-          'display_label' => FALSE,
+          'display_label' => TRUE,
         ],
-        'weight' => 100,
+        'weight' => 120,
       ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'type' => 'boolean',
-        'label' => 'above',
-        'weight' => 0,
-        'settings' => [
-          'format' => 'enabled-disabled',
-        ],
-      ])
-      ->setDisplayConfigurable('view', FALSE);
+      ->setDisplayConfigurable('form', TRUE);
 
     return $fields;
   }
