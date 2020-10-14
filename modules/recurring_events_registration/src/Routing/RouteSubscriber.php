@@ -23,8 +23,6 @@ class RouteSubscriber extends RouteSubscriberBase {
         'load_latest_revision' => TRUE,
       ];
       $route->setOption('parameters', $option);
-
-      ksm($route);
     }
   }
 }
