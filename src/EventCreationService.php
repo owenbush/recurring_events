@@ -686,7 +686,7 @@ class EventCreationService {
         $instance_workflow = reset(array_keys($instance_workflows));
 
         // We only want to mimic moderation state if the series and instance use
-        // the same workflows, otherwise we cannot guarantee the states match up.
+        // the same workflows, otherwise we cannot guarantee the states match.
         if ($instance_workflow === $series_workflow) {
           $field_name = 'moderation_state';
         }
@@ -699,7 +699,6 @@ class EventCreationService {
     $original_state = $original_event->get($field_name)->getValue();
     $new_state = $event->get($field_name)->getValue();
     $instance_state = $instance->get($field_name)->getValue();
-
 
     // If the instance state matches the original state of the series we want
     // to also update the instance state.
