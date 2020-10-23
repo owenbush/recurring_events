@@ -135,7 +135,8 @@ class EventCreationService {
       $container->get('plugin.manager.field.field_type'),
       $container->get('entity_field.manager'),
       $container->get('module_handler'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('keyvalue')
     );
   }
 
@@ -658,6 +659,58 @@ class EventCreationService {
       $this->moduleHandler->alter('recurring_events_recur_field_types', $recur_fields);
     }
     return $recur_fields;
+  }
+
+  /**
+   * Update instance status.
+   *
+   * @param Drupal\recurring_events\Entity\EventInstance $instance
+   *   The event instance for which to update the status.
+   * @param Drupal\recurring_events\Entity\EventSeries $event
+   *   The event series entity.
+   */
+  public function updateInstanceStatus(EventInstance $instance, EventSeries $event) {
+    $original_event = $event->original;
+    $field_name = 'status';
+
+    if ($this->moduleHandler->moduleExists('workflow')) {
+      if ($event->hasField('moderation_state') && $instance->hasField('moderation_state')) {
+        $series_query = $this->entityTypeManager->getStorage('workflow')->getQuery();
+        $series_query->condition('type_settings.entity_types.eventseries', $event->bundle(), 'IN');
+        $series_workflows = $series_query->execute();
+        $series_workflow = reset(array_keys($series_workflows));
+
+        $instance_query = $this->entityTypeManager->getStorage('workflow')->getQuery();
+        $instance_query->condition('type_settings.entity_types.eventinstance', $instance->bundle(), 'IN');
+        $instance_workflows = $instance_query->execute();
+        $instance_workflow = reset(array_keys($instance_workflows));
+
+        // We only want to mimic moderation state if the series and instance use
+        // the same workflows, otherwise we cannot guarantee the states match up.
+        if ($instance_workflow === $series_workflow) {
+          $field_name = 'moderation_state';
+        }
+        else {
+          return FALSE;
+        }
+      }
+    }
+
+    $original_state = $original_event->get($field_name)->getValue();
+    $new_state = $event->get($field_name)->getValue();
+    $instance_state = $instance->get($field_name)->getValue();
+
+
+    // If the instance state matches the original state of the series we want
+    // to also update the instance state.
+    if ($instance_state === $original_state) {
+      $instance->set($field_name, $new_state);
+      $instance->save();
+      return TRUE;
+    }
+
+    return FALSE;
+
   }
 
 }

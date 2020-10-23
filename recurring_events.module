@@ -221,10 +221,22 @@ function recurring_events_field_inheritance_update(EntityInterface $entity) {
 function recurring_events_eventseries_update(EntityInterface $entity) {
   $creation_service = \Drupal::service('recurring_events.event_creation_service');
   $instances = $entity->event_instances->referencedEntities();
+  $updated_statuses = $skipped_statuses = 0;
   if (!empty($instances)) {
     foreach ($instances as $instance) {
       $creation_service->configureDefaultInheritances($instance, $entity->id());
+      $status_updated = $creation_service->updateInstanceStatus($instance, $entity);
+      if ($status_updated) {
+        $updated_statuses++;
+      }
+      else {
+        $skipped_statuses++;
+      }
     }
+    \Drupal::messenger()->addMessage(t('Successfully updated @success instance statuses. Skipped @skipped instances due to status or workflow mismatch with series.', [
+      '@success' => $updated_statuses,
+      '@skipped' => $skipped_statuses,
+    ]));
   }
 }
 
