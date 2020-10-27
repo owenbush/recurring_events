@@ -173,9 +173,11 @@ function recurring_events_eventseries_insert(EntityInterface $entity) {
       if (empty($instance->eventseries_id->target_id)) {
         $instance->set('eventseries_id', $entity->id());
         $instance->setNewRevision(FALSE);
-        $instance->save();
 
         $creation_service->configureDefaultInheritances($instance, $entity->id());
+        $creation_service->updateInstanceStatus($instance, $entity);
+
+        $instance->save();
       }
     }
   }
@@ -228,6 +230,7 @@ function recurring_events_eventseries_update(EntityInterface $entity) {
       $status_updated = $creation_service->updateInstanceStatus($instance, $entity);
       if ($status_updated) {
         $updated_statuses++;
+        $instance->save();
       }
       else {
         $skipped_statuses++;

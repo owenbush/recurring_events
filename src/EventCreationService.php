@@ -673,7 +673,7 @@ class EventCreationService {
     $original_event = $event->original;
     $field_name = 'status';
 
-    if ($this->moduleHandler->moduleExists('workflow')) {
+    if ($this->moduleHandler->moduleExists('workflows')) {
       if ($event->hasField('moderation_state') && $instance->hasField('moderation_state')) {
         $series_query = $this->entityTypeManager->getStorage('workflow')->getQuery();
         $series_query->condition('type_settings.entity_types.eventseries', $event->bundle(), 'IN');
@@ -696,15 +696,21 @@ class EventCreationService {
       }
     }
 
-    $original_state = $original_event->get($field_name)->getValue();
     $new_state = $event->get($field_name)->getValue();
     $instance_state = $instance->get($field_name)->getValue();
+
+    if (!empty($original_event)) {
+      $original_state = $original_event->get($field_name)->getValue();
+    }
+    else {
+      $instance->set($field_name, $new_state);
+      return TRUE;
+    }
 
     // If the instance state matches the original state of the series we want
     // to also update the instance state.
     if ($instance_state === $original_state) {
       $instance->set($field_name, $new_state);
-      $instance->save();
       return TRUE;
     }
 
