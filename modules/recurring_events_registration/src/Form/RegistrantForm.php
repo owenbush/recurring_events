@@ -407,6 +407,14 @@ class RegistrantForm extends ContentEntityForm {
         $entity->setWaitlist($form_state->getValue('add_to_waitlist'));
       }
     }
+
+    $unique_email_address = $this->creationService->registrationUniqueEmailAddress();
+    $email_address = $form_state->getValue('email');
+    $existing_registration_id = $this->creationService->hasUserRegisteredByEmail($email_address[0]['value']);
+    if ($unique_email_address && $existing_registration_id) {
+      // If a registration already exists for the email, stay on the event instance registration page
+      $form_state->setErrorByName('email', $this->t("You've already registered for this event."));
+    }
   }
 
   /**

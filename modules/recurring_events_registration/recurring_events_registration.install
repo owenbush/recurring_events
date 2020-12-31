@@ -220,6 +220,7 @@ function recurring_events_registration_update_8005() {
         'format' => 'enabled-disabled',
       ],
     ])
+    ->setDefaultValue(0)
     ->setDisplayConfigurable('view', FALSE);
   $definition_update_manager->installFieldStorageDefinition('status', 'registrant', 'registrant', $status);
 }
@@ -257,5 +258,102 @@ function recurring_events_registration_update_8006(&$sandbox) {
   }
   else {
     $sandbox['#finished'] = 1;
+  }
+}
+
+/**
+ * Update the event_registration field type to add unique email field.
+ */
+function recurring_events_registration_update_8007() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+
+  $storage = $entity_type_manager->getStorage('eventseries');
+  $bundle_definition = $entity_type_manager->getDefinition('eventseries');
+
+  $id_key = $bundle_definition->getKey('id');
+  $revision_key = $bundle_definition->getKey('revision');
+
+  $table_name = $storage->getDataTable() ?: $storage->getBaseTable();
+  $revision_table_name = $storage->getRevisionDataTable() ?: $storage->getRevisionTable();
+
+  $database = \Drupal::database();
+  $definition_manager = \Drupal::entityDefinitionUpdateManager();
+
+  // We need to grab all the current data for registration settings for an event
+  // before we remove the registration field, before re-adding it with our new
+  // unique email field.
+  $reg_fields = [
+    'event_registration__value',
+    'event_registration__end_value',
+    'event_registration__registration',
+    'event_registration__registration_type',
+    'event_registration__registration_dates',
+    'event_registration__capacity',
+    'event_registration__waitlist',
+    'event_registration__instance_schedule_open',
+    'event_registration__instance_schedule_open_amount',
+    'event_registration__instance_schedule_open_units',
+    'event_registration__instance_schedule_close',
+    'event_registration__instance_schedule_close_amount',
+    'event_registration__instance_schedule_close_units',
+    'event_registration__instance_schedule_close_type',
+  ];
+
+  $registration_values = $database->select($table_name)
+    ->fields($table_name, [$id_key, $revision_key] + $reg_fields)
+    ->execute()
+    ->fetchAll();
+
+  // We need to NULL out all the current values, so that we can remove the field
+  // without warning.
+  $update_fields = array_fill_keys($reg_fields, NULL);
+  $database->update($table_name)
+    ->fields($update_fields)
+    ->execute();
+
+  // Remove the existing registration field.
+  $field_storage_definition = $definition_manager->getFieldStorageDefinition('event_registration', 'eventseries');
+  $definition_manager->uninstallFieldStorageDefinition($field_storage_definition);
+
+  // Create a new instance of the registration field and install it.
+  $storage_definition = BaseFieldDefinition::create('event_registration')
+    ->setName('event_registration')
+    ->setLabel(t('Event Registration'))
+    ->setDescription('The event registration configuration.')
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE)
+    ->setRevisionable(TRUE)
+    ->setTranslatable(FALSE)
+    ->setCardinality(1)
+    ->setRequired(FALSE)
+    ->setDisplayOptions('form', [
+      'type' => 'event_registration',
+      'weight' => 10,
+    ]);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('event_registration', 'eventseries', 'eventseries', $storage_definition);
+
+  // Restore previously stored values.
+  if (!empty($registration_values)) {
+    foreach ($registration_values as $value) {
+      $values_to_restore = [
+        $id_key => $value->{$id_key},
+        $revision_key => $value->{$revision_key},
+      ];
+      foreach ($reg_fields as $field) {
+        $values_to_restore[$field] = rtrim($value->{$field}, 's');;
+      }
+      $values_to_restore['event_registration__unique_email_address'] = 0;
+      $database->update($table_name)
+        ->fields($values_to_restore)
+        ->condition($id_key, $value->{$id_key})
+        ->execute();
+
+      $database->update($revision_table_name)
+        ->fields($values_to_restore)
+        ->condition($id_key, $value->{$id_key})
+        ->execute();
+    }
   }
 }

@@ -89,6 +89,12 @@ class EventRegistration extends DateRangeItem {
       'length' => 255,
     ];
 
+    $schema['columns']['unique_email_address'] = [
+      'type' => 'int',
+      'default' => 0,
+      'unsigned' => TRUE,
+    ];
+
     return $schema;
   }
 
@@ -108,12 +114,13 @@ class EventRegistration extends DateRangeItem {
     $instance_schedule_close_amount = $this->get('instance_schedule_close_amount')->getValue();
     $instance_schedule_close_units = $this->get('instance_schedule_close_units')->getValue();
     $instance_schedule_close_type = $this->get('instance_schedule_close_type')->getValue();
+    $unique_email_address = $this->get('unique_email_address')->getValue();
     return parent::isEmpty() && empty($registration) && empty($registration_type)
       && empty($registration_dates) && empty($capacity) && empty($waitlist)
       && empty($instance_schedule_open) && empty($instance_schedule_open_amount)
       && empty($instance_schedule_open_units) && empty($instance_schedule_close)
       && empty($instance_schedule_close_amount) && empty($instance_schedule_close_units)
-      && empty($instance_schedule_close_type);
+      && empty($instance_schedule_close_type) && empty($unique_email_address);
   }
 
   /**
@@ -169,6 +176,10 @@ class EventRegistration extends DateRangeItem {
     $properties['instance_schedule_close_type'] = DataDefinition::create('string')
       ->setLabel(t('Instance Registration Close Type'))
       ->setDescription(t('Select when to close registrations (type).'));
+
+    $properties['unique_email_address'] = DataDefinition::create('boolean')
+      ->setLabel(t('Restrict registration to once per email address?'))
+      ->setDescription(t('Select whether to prevent a single email address from registering multiple times for the same event.'));
 
     return $properties;
   }
