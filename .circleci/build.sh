@@ -81,7 +81,7 @@ if [ -n "${DRUPAL_VERSION}" ] && [ -n "${DRUPAL_PROJECT_SHA}" ]; then
   php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" install
 else
   echo "==> Initialise Drupal site from the latest scaffold."
-  php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:8.x-dev "${BUILD_DIR}" --no-interaction
+  php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:${DRUPAL_VERSION} "${BUILD_DIR}" --no-interaction
 fi
 
 echo "==> Install additional dev dependencies from module's composer.json."
