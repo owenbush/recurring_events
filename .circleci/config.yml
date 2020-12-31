@@ -41,35 +41,14 @@ jobs:
       - image: circleci/php:7.3-cli-browsers
     <<: *job-build
 
+  # Only D8 runs on 7.2, D9 has a min. req. of 7.3
   build-php-7.2:
     <<: *container_config
+    environment:
+      DRUPAL_VERSION: 8.9.10
+      DRUPAL_PROJECT_SHA: 8.x
     docker:
       - image: circleci/php:7.2-cli-browsers
-    <<: *job-build
-
-  d88-build-php-7.4-legacy:
-    <<: *container_config
-    environment:
-      DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
-    <<: *job-build
-
-  d88-build-php-7.3-legacy:
-    <<: *container_config
-    docker:
-      - image: circleci/php:7.3-cli-browsers
-    environment:
-      DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
-    <<: *job-build
-
-  d88-build-php-7.2-legacy:
-    <<: *container_config
-    docker:
-      - image: circleci/php:7.2-cli-browsers
-    environment:
-      DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d89-build-php-7.4-legacy:
@@ -153,18 +132,6 @@ workflows:
             tags:
               only: /.*/
       - build-php-7.2:
-          filters:
-            tags:
-              only: /.*/
-      - d88-build-php-7.4-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - d88-build-php-7.3-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - d88-build-php-7.2-legacy:
           filters:
             tags:
               only: /.*/
