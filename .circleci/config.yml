@@ -51,7 +51,6 @@ jobs:
     <<: *container_config
     environment:
       DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d88-build-php-7.3-legacy:
@@ -60,7 +59,6 @@ jobs:
       - image: circleci/php:7.3-cli-browsers
     environment:
       DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d88-build-php-7.2-legacy:
@@ -69,14 +67,12 @@ jobs:
       - image: circleci/php:7.2-cli-browsers
     environment:
       DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d89-build-php-7.4-legacy:
     <<: *container_config
     environment:
       DRUPAL_VERSION: 8.9.10
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d89-build-php-7.3-legacy:
@@ -85,7 +81,6 @@ jobs:
       - image: circleci/php:7.3-cli-browsers
     environment:
       DRUPAL_VERSION: 8.9.10
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d89-build-php-7.2-legacy:
@@ -94,14 +89,12 @@ jobs:
       - image: circleci/php:7.2-cli-browsers
     environment:
       DRUPAL_VERSION: 8.9.10
-      DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
   d90-build-php-7.4-legacy:
     <<: *container_config
     environment:
       DRUPAL_VERSION: 9.0.10
-      DRUPAL_PROJECT_SHA: 9.0.x
     <<: *job-build
 
   d90-build-php-7.3-legacy:
@@ -110,14 +103,12 @@ jobs:
       - image: circleci/php:7.3-cli-browsers
     environment:
       DRUPAL_VERSION: 9.0.10
-      DRUPAL_PROJECT_SHA: 9.0.x
     <<: *job-build
 
   d91-build-php-7.4-legacy:
     <<: *container_config
     environment:
       DRUPAL_VERSION: 9.1.0
-      DRUPAL_PROJECT_SHA: 9.1.x
     <<: *job-build
 
   d91-build-php-7.3-legacy:
@@ -126,7 +117,6 @@ jobs:
       - image: circleci/php:7.3-cli-browsers
     environment:
       DRUPAL_VERSION: 9.1.0
-      DRUPAL_PROJECT_SHA: 9.1.x
     <<: *job-build
 
   deploy:
