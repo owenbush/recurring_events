@@ -573,27 +573,29 @@ function recurring_events_recurring_events_event_instances_pre_create_alter(arra
 
   if (!empty($include)) {
     foreach ($event_instances as $key => $dates) {
+      $include_event = FALSE;
       $start = $dates['start_date']->getTimestamp();
       $end = $dates['end_date']->getTimestamp();
 
-      for ($x = 0; $x < (count($include) - 1); $x++) {
+      for ($x = 0; $x <= (count($include) - 1); $x++) {
         $included_start = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $include[$x]['value'] . 'T00:00:00');
         $included_start = $included_start->getTimestamp();
         $included_end = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $include[$x]['end_value'] . 'T23:59:59');
         $included_end = $included_end->getTimestamp();
 
         if ($start >= $included_start && $start <= $included_end && $end >= $included_start && $end <= $included_end) {
+          $include_event = TRUE;
           // This event is in the inclusion range, so move on to the next one.
           break;
         }
+      }
 
-        if ($x == (count($include) - 1)) {
-          $messenger->addMessage(t('Skipping non-included date: @start_date - @end_date', [
-            '@start_date' => $dates['start_date']->format($config->get('date_format')),
-            '@end_date' => $dates['end_date']->format($config->get('date_format')),
-          ]));
-          unset($event_instances[$key]);
-        }
+      if (!$include_event) {
+        $messenger->addMessage(t('Skipping non-included date: @start_date - @end_date', [
+          '@start_date' => $dates['start_date']->format($config->get('date_format')),
+          '@end_date' => $dates['end_date']->format($config->get('date_format')),
+        ]));
+        unset($event_instances[$key]);
       }
     }
   }
