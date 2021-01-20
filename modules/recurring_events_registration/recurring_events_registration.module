@@ -405,3 +405,16 @@ function recurring_events_registration_module_implements_alter(&$implementations
     $implementations['recurring_events_registration'] = $group;
   }
 }
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function recurring_events_registration_preprocess_page_title(array &$variables) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  if ($route_name === 'entity.registrant.add_form') {
+    $event_instance = \Drupal::routeMatch()->getParameters()->get('eventinstance');
+    if (!empty($event_instance) && !empty($event_instance->title->value)) {
+      $variables['title'] = $event_instance->title->value;
+    }
+  }
+}
