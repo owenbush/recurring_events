@@ -312,6 +312,13 @@ class RegistrantForm extends ContentEntityForm {
     // we need to prevent caching.
     $form['#cache'] = ['max-age' => 0];
     $form_state->setCached(FALSE);
+
+    $save_label = $this->t('Register');
+    if ($editing) {
+      $save_label = $this->t('Update Registration');
+    }
+    $form['actions']['submit']['#value'] = $save_label;
+
     return $form;
   }
 
