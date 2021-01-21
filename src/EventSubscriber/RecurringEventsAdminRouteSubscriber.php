@@ -45,7 +45,6 @@ class RecurringEventsAdminRouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
-    var_dump('yes');
     if ($this->configFactory->get('node.settings')->get('use_admin_theme')) {
       foreach ($collection->all() as $route) {
         if ($route->hasOption('_recurring_events_operation_route')) {
