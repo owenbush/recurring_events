@@ -232,7 +232,7 @@ class RegistrantResendForm extends FormBase {
       'registrant' => $this->registrant,
     ];
 
-    $to = $this->registrant->mail->value;
+    $to = $this->registrant->email->value;
     $this->mail->mail('recurring_events_registration', 'custom', $to, $this->languageManager->getDefaultLanguage()->getId(), $params);
     $this->messenger->addMessage($this->t('Registrant email successfully resent.'));
   }
