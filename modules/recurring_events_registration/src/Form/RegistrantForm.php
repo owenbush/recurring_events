@@ -105,7 +105,7 @@ class RegistrantForm extends ContentEntityForm {
       $container->get('current_route_match'),
       $container->get('entity_type.manager'),
       $container->get('cache_tags.invalidator'),
-      $container->has('content_moderation.moderation_information') ? $container->get('content_moderation.moderation_information') : NULL,
+      $container->has('content_moderation.moderation_information') ? $container->get('content_moderation.moderation_information') : NULL
     );
   }
 
