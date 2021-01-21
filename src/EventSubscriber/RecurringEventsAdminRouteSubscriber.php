@@ -59,6 +59,7 @@ class RecurringEventsAdminRouteSubscriber extends RouteSubscriberBase {
    * Rebuilds the router when node.settings:use_admin_theme is changed.
    *
    * @param \Drupal\Core\Config\ConfigCrudEvent $event
+   *   The config crud event that gets fired.
    */
   public function onConfigSave(ConfigCrudEvent $event) {
     if ($event->getConfig()->getName() === 'node.settings' && $event->isChanged('use_admin_theme')) {
