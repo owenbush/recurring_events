@@ -21,6 +21,7 @@ entity.eventseries.add_form:
   requirements:
     _entity_create_access: 'eventseries'
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventseries_type:
         type: entity:eventseries_type
@@ -33,6 +34,8 @@ entity.eventseries.add_page:
     _controller: '\Drupal\recurring_events\Controller\EventSeriesController::addPage'
   requirements:
     _entity_create_access: 'eventseries'
+  options:
+    _recurring_events_operation_route: TRUE
 
 # Edit an EventSeries.
 entity.eventseries.edit_form:
@@ -44,6 +47,7 @@ entity.eventseries.edit_form:
     _entity_access: 'eventseries.edit'
     eventseries: \d+
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventseries:
         type: entity:eventseries
@@ -58,6 +62,7 @@ entity.eventseries.delete_form:
     _entity_access: 'eventseries.delete'
     eventseries: \d+
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventseries:
         type: entity:eventseries
@@ -72,6 +77,7 @@ entity.eventseries.clone_form:
     _entity_access: 'eventseries.clone'
     eventseries: \d+
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventseries:
         type: entity:eventseries
@@ -111,6 +117,7 @@ entity.eventinstance.edit_form:
     _entity_access: 'eventinstance.edit'
     eventinstance: \d+
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventinstance:
         type: entity:eventinstance
@@ -125,6 +132,7 @@ entity.eventinstance.delete_form:
     _entity_access: 'eventinstance.delete'
     eventinstance: \d+
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventinstance:
         type: entity:eventinstance
@@ -139,6 +147,7 @@ entity.eventinstance.clone_form:
   requirements:
     _entity_access: 'eventinstance.clone'
   options:
+    _recurring_events_operation_route: TRUE
     parameters:
       eventinstance:
         type: entity:eventinstance
