@@ -44,7 +44,7 @@ trait RecurringEventsFieldTrait {
 
     foreach ($range as $time) {
       $time_option = DrupalDateTime::createFromTimestamp($time, $utc_timezone);
-      $times[$time_option->format('h:i a')] = $time_option->format($format);
+      $times[$time_option->format('h:i a', ['langcode' => 'en'])] = $time_option->format($format);
     }
 
     \Drupal::moduleHandler()->alter('recurring_events_times', $times);
