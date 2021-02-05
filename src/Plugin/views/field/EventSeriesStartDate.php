@@ -29,10 +29,11 @@ class EventSeriesStartDate extends FieldPluginBase {
 
     $event = $values->_entity;
     $event_start = $event->getSeriesStart();
+    $timezone = new \DateTimeZone(date_default_timezone_get());
 
     if (!empty($event_start)) {
       $format = \Drupal::config('recurring_events.eventseries.config')->get('date_format');
-      $start_date = $event_start->format($format);
+      $start_date = $event_start->setTimezone($timezone)->format($format);
     }
     return $start_date;
   }
