@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\recurring_events\Entity\EventSeries;
 use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\Core\Url;
@@ -73,6 +74,15 @@ function recurring_events_registration_theme() {
   $theme['registrant'] = [
     'render element' => 'elements',
     'template' => 'registrant',
+  ];
+
+  $theme['eventinstance_register_button'] = [
+    'render element' => 'elements',
+    'template' => 'eventinstance-register-button',
+    'variables' => [
+      'entity' => NULL,
+      'attributes' => NULL,
+    ],
   ];
 
   return $theme;
@@ -416,5 +426,41 @@ function recurring_events_registration_preprocess_page_title(array &$variables) 
     if (!empty($event_instance) && !empty($event_instance->title->value)) {
       $variables['title'] = $event_instance->title->value;
     }
+  }
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function recurring_events_registration_entity_extra_field_info() {
+  $extra = [];
+  $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('eventinstance');
+  if (!empty($bundles)) {
+    foreach ($bundles as $bundle_id => $bundle) {
+      $extra['eventinstance'][$bundle_id]['display']['register_button'] = [
+        'label' => t('Register button'),
+        'description' => t('Show a button linking to the registration page for this event instance'),
+        'weight' => 999,
+      ];
+    }
+  }
+  return $extra;
+}
+
+/**
+ * Implements hook_[ENTITY NAME]_view().
+ */
+function recurring_events_registration_eventinstance_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($display->getComponent('register_button')) {
+    $build['register_button'] = [
+      '#theme' => 'eventinstance_register_button',
+      '#entity' => $entity,
+      '#attributes' => [
+        'class' => [
+          'button',
+          'eventinstance-register',
+        ],
+      ],
+    ];
   }
 }
