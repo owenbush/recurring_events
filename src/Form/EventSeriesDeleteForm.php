@@ -10,6 +10,8 @@ use Drupal\Core\Url;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Render\Renderer;
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 
 /**
  * Provides a form for deleting an eventseries entity.
@@ -52,6 +54,8 @@ class EventSeriesDeleteForm extends ContentEntityDeleteForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.repository'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
       $container->get('messenger'),
       $container->get('renderer'),
       $container->get('config.factory')
@@ -63,6 +67,10 @@ class EventSeriesDeleteForm extends ContentEntityDeleteForm {
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository service.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info interface.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time interface.
    * @param \Drupal\Core\Messenger\Messenger $messenger
    *   The messenger service.
    * @param \Drupal\Core\Render\Renderer $renderer
@@ -70,11 +78,11 @@ class EventSeriesDeleteForm extends ContentEntityDeleteForm {
    * @param \Drupal\Core\Config\ConfigFactory $config
    *   The config factory service.
    */
-  public function __construct(EntityRepositoryInterface $entity_repository, Messenger $messenger, Renderer $renderer, ConfigFactory $config) {
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, Messenger $messenger, Renderer $renderer, ConfigFactory $config) {
     $this->messenger = $messenger;
     $this->renderer = $renderer;
     $this->config = $config;
-    parent::__construct($entity_repository);
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
   }
 
   /**

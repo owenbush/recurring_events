@@ -9,6 +9,8 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Datetime\DateFormatter;
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 
 /**
  * Provides a form for deleting an eventinstance entity.
@@ -43,13 +45,17 @@ class EventInstanceDeleteForm extends ContentEntityDeleteForm {
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository service.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info interface.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time interface.
    * @param \Drupal\Core\Messenger\Messenger $messenger
    *   The messenger service.
    * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
    *   The date formatter service.
    */
-  public function __construct(EntityRepositoryInterface $entity_repository, Messenger $messenger, DateFormatter $date_formatter) {
-    parent::__construct($entity_repository);
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, Messenger $messenger, DateFormatter $date_formatter) {
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
     $this->messenger = $messenger;
     $this->dateFormatter = $date_formatter;
   }
@@ -60,6 +66,8 @@ class EventInstanceDeleteForm extends ContentEntityDeleteForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.repository'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
       $container->get('messenger'),
       $container->get('date.formatter')
     );
