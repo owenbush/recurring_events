@@ -115,7 +115,7 @@ class EventSeriesDeleteForm extends ContentEntityDeleteForm {
         foreach ($instances as $instance) {
           $date = $instance->date->start_date;
           $date->setTimezone($timezone);
-          $options[] = $instance->toLink($date->format($this->config->get('recurring_events_registration.registrant.config')->get('date_format')));
+          $options[] = $instance->toLink($date->format($this->config->get('recurring_events.eventseries.config')->get('date_format')));
         }
 
         $description['instances'] = [
