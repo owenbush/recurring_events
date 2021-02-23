@@ -184,6 +184,17 @@ class EventSeriesForm extends ContentEntityForm {
       ],
     ];
 
+    $form['included_dates']['#states'] = [
+      'visible' => [
+        ':input[name="recur_type"]' => ['!value' => 'custom'],
+      ],
+    ];
+    $form['excluded_dates']['#states'] = [
+      'visible' => [
+        ':input[name="recur_type"]' => ['!value' => 'custom'],
+      ],
+    ];
+
     // Get all the available recur type fields. Suppress altering so that we can
     // get a list of all the fields, so that after we alter, we can remove the
     // necessary fields from the entity form.

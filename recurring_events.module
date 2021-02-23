@@ -605,7 +605,7 @@ function recurring_events_recurring_events_event_instances_pre_create_alter(arra
  * Implements callback_allowed_values_function().
  */
 function recurring_events_allowed_values_function(FieldStorageDefinitionInterface $definition, FieldableEntityInterface $entity = NULL) {
-  $values = ['custom' => t('Custom Event')];
+  $values = ['custom' => t('Custom/Single Event')];
   $fields = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('eventseries');
   foreach ($fields as $field) {
     $field_definition = \Drupal::service('plugin.manager.field.field_type')->getDefinition($field->getType());

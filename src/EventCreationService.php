@@ -666,7 +666,7 @@ class EventCreationService {
       }
     }
 
-    $recur_fields['custom'] = $this->t('Custom Event');
+    $recur_fields['custom'] = $this->t('Custom/Single Event');
     if ($allow_alter) {
       $this->moduleHandler->alter('recurring_events_recur_field_types', $recur_fields);
     }
