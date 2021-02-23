@@ -77,7 +77,7 @@ class EntityEventSeries extends EntityContentBase {
    *
    * @param array $source
    *   Date field data.
-   * @param DateTimeZone $source_timezone
+   * @param \DateTimeZone $source_timezone
    *   The source timezone for the recurring dates.
    * @param \Drupal\migrate\Row $row
    *   Row object.
