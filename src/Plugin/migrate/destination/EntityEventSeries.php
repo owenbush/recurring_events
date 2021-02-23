@@ -77,13 +77,15 @@ class EntityEventSeries extends EntityContentBase {
    *
    * @param array $source
    *   Date field data.
+   * @param DateTimeZone $source_timezone
+   *   The source timezone for the recurring dates.
    * @param \Drupal\migrate\Row $row
    *   Row object.
    */
-  private function setRecurringDateValues($source, \DateTimeZone $source_timezone, Row $row) {
+  private function setRecurringDateValues(array $source, \DateTimeZone $source_timezone, Row $row) {
 
-    // @todo - Can't specify what months.
-    // @todo - No yearly.
+    // @todo Fix problem of specifying what months here.
+    // @todo Fix problem of no yearly pattern here.
     if (!$num_dates = count($source)) {
       return;
     }
@@ -102,7 +104,7 @@ class EntityEventSeries extends EntityContentBase {
 
     if ($rule_in) {
       if (!$rrule = $this->parseRule($rule_in)) {
-        // @todo - What type of exception should be thrown?
+        // @todo Fix problem of what type of exception should be thrown here.
         throw new InvalidDataTypeException('Invalid RRULE.');
       }
     }
@@ -158,9 +160,9 @@ class EntityEventSeries extends EntityContentBase {
       $row->setDestinationProperty('excluded_dates', $rrule['EXDATE']);
     }
 
-    // @todo - How is this set in D7?
+    // @todo Fix problem of how to set this in D7 here.
     // if (!empty($rrule['INCDATE'])) {
-    //   $row->setDestinationProperty('excluded_dates', $rrule['INCDATE']);
+    // $row->setDestinationProperty('excluded_dates', $rrule['INCDATE']);
     // }
     $row->setDestinationProperty('recur_type', $recur_type);
     $row->setDestinationProperty($recur_type, $options);
@@ -234,7 +236,7 @@ class EntityEventSeries extends EntityContentBase {
           break;
 
         default:
-          // @todo - What type of exception should be thrown? Does it matter?
+          // @todo Fix problem of what type of exception should be thrown here.
           throw new InvalidDataTypeException(sprintf('Invalid RRULE attribute of "%s".', $key));
 
       }
