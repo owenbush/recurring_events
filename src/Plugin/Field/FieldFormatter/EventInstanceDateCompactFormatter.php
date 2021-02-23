@@ -8,8 +8,6 @@ use Drupal\Core\Entity\Exception\UndefinedLinkTemplateException;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Url;
-use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\daterange_compact\DateRangeFormatterInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
@@ -17,7 +15,7 @@ use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Plugin implementation of the 'recurring events eventinstance datecompact' formatter.
+ * Implementation of the 'recurring events eventinstance datecompact' formatter.
  *
  * @FieldFormatter(
  *   id = "recurring_events_eventinstance_datecompact",
