@@ -84,7 +84,6 @@ class EntityEventSeries extends EntityContentBase {
 
     // @todo - Can't specify what months.
     // @todo - No yearly.
-
     if (!$num_dates = count($source)) {
       return;
     }
@@ -163,13 +162,17 @@ class EntityEventSeries extends EntityContentBase {
     // if (!empty($rrule['INCDATE'])) {
     //   $row->setDestinationProperty('excluded_dates', $rrule['INCDATE']);
     // }
-
     $row->setDestinationProperty('recur_type', $recur_type);
     $row->setDestinationProperty($recur_type, $options);
-//    $row->setDestinationProperty('event_registration', ['value' => 0]);
-
+    // $row->setDestinationProperty('event_registration', ['value' => 0]);
   }
 
+  /**
+   * Parse an RRULE into an array.
+   *
+   * @param string $rrule
+   *   The RRULE to parse.
+   */
   private function parseRule($rrule) {
 
     if (!$attrs = array_filter(explode(';', preg_replace('/^(?:RRULE|EXRULE):/i', '', str_replace("\n", ';', $rrule))))) {
@@ -237,7 +240,6 @@ class EntityEventSeries extends EntityContentBase {
       }
 
     } // Loop thru attributes.
-
     return $options;
 
   }
