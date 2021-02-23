@@ -218,7 +218,7 @@ class ContactForm extends FormBase {
       foreach ($registrants as $registrant) {
         $params['registrant'] = $registrant;
 
-        $to = $registrant->mail->value;
+        $to = $registrant->email->value;
         $this->mail->mail('recurring_events_registration', 'custom', $to, $this->languageManager->getDefaultLanguage()->getId(), $params);
 
         if ($registrant->getWaitlist() == '1') {
