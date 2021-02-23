@@ -672,4 +672,60 @@ class RegistrationCreationService {
     return $token_help;
   }
 
+  /**
+   * Has the email address registered for this event before.
+   *
+   * @param string $email
+   *   The email address of the user.
+   * @param int $ignored_registrant_id
+   *   The ID of the registrant to ignore during duplicate email checks.
+   *
+   * @return bool|int
+   *   Return the registration ID if it exists otherwise return FALSE.
+   */
+  public function hasUserRegisteredByEmail($email, $ignored_registrant_id = NULL) {
+    // Look through this series' registrations.
+    $existing_registration_id = FALSE;
+    $current_series_registrations = $this->retrieveAllSeriesRegisteredParties();
+    foreach ($current_series_registrations as $registration_id => $registration_record) {
+      if ($registration_id === $ignored_registrant_id) {
+        continue;
+      }
+      // Compare the event instance ID and email address.
+      if (($this->eventInstance->id() == $registration_record->get('eventinstance_id')->target_id)
+        && ($this->cleanEmailAddress($email) == $this->cleanEmailAddress($registration_record->get('email')->value))) {
+        // Remember the existing registration ID and stop looking.
+        $existing_registration_id = $registration_id;
+        break;
+      }
+    }
+    return $existing_registration_id;
+  }
+
+  /**
+   * Clean the email address to handle plus- and dot-addressing.
+   *
+   * @param string $email
+   *   The email address of the user.
+   *
+   * @return string
+   *   The cleaned email address
+   */
+  public function cleanEmailAddress($email) {
+    $email_address_parts = (isset($email) ? explode('@', $email) : ['', '']);
+    $email_address_clean = str_replace('.', '', $email_address_parts[0]) . '@' . $email_address_parts[1];
+    $email_address_clean = preg_replace('/\+.*@/', '@', $email_address_clean);
+    return (isset($email) ? strtolower($email_address_clean) : NULL);
+  }
+
+  /**
+   * Do email addresses have to be unique for this event?
+   *
+   * @return bool
+   *   Whether or not unique email addresses are enforced for this event.
+   */
+  public function registrationUniqueEmailAddress() {
+    return $this->eventSeries->event_registration->unique_email_address;
+  }
+
 }

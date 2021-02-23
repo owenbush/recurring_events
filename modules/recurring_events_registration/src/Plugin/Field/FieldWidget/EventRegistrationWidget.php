@@ -77,11 +77,24 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#default_value' => $items[$delta]->registration ?: '',
     ];
 
+    $element['unique_email_address'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Restrict registration to once per email address?'),
+      '#description' => $this->t('Select this box to only allow an email address to register for an event one time.'),
+      '#weight' => 1,
+      '#default_value' => $items[$delta]->unique_email_address ?: '',
+      '#states' => [
+        'visible' => [
+          ':input[name="event_registration[0][registration]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
     $element['registration_type'] = [
       '#type' => 'radios',
       '#title' => $this->t('Registration Type'),
       '#description' => $this->t('Select whether registrations are for the entire series, or for individual instances.'),
-      '#weight' => 1,
+      '#weight' => 2,
       '#default_value' => $items[$delta]->registration_type ?: 'instance',
       '#options' => [
         'instance' => $this->t('Individual Event Registration'),
@@ -98,7 +111,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#type' => 'radios',
       '#title' => $this->t('Registration Dates'),
       '#description' => $this->t('Choose between open or scheduled registration. Open registration ends when the event begins.'),
-      '#weight' => 2,
+      '#weight' => 3,
       '#default_value' => $items[$delta]->registration_dates ?: 'open',
       '#options' => [
         'open' => $this->t('Open Registration'),
@@ -114,7 +127,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     $element['series_registration'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Series Registration'),
-      '#weight' => 3,
+      '#weight' => 4,
       '#states' => [
         'visible' => [
           ':input[name="event_registration[0][registration]"]' => ['checked' => TRUE],
@@ -135,7 +148,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
     $element['instance_registration'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Instance Registration'),
-      '#weight' => 3,
+      '#weight' => 4,
       '#states' => [
         'visible' => [
           ':input[name="event_registration[0][registration]"]' => ['checked' => TRUE],
@@ -260,7 +273,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#type' => 'number',
       '#title' => $this->t('Total Number of Spaces Available'),
       '#description' => $this->t('Maximum number of attendees available for each series, or individual event. Leave blank for unlimited.'),
-      '#weight' => 5,
+      '#weight' => 6,
       '#default_value' => $items[$delta]->capacity ?: '',
       '#min' => 0,
       '#states' => [
@@ -277,7 +290,7 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Waiting List'),
       '#description' => $this->t('Enable a waiting list if the number of registrations reaches capacity.'),
-      '#weight' => 6,
+      '#weight' => 7,
       '#default_value' => $waitlist_default_value,
       '#states' => [
         'visible' => [
@@ -362,6 +375,10 @@ class EventRegistrationWidget extends DateRangeDefaultWidget {
 
       if (empty($item['instance_schedule_close_type'])) {
         $item['instance_schedule_close_type'] = '';
+      }
+
+      if (empty($item['unique_email_address'])) {
+        $item['unique_email_address'] = 0;
       }
 
     }

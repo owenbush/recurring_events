@@ -262,6 +262,7 @@ class Registrant extends EditorialContentEntityBase implements RegistrantInterfa
         ],
         'weight' => 120,
       ])
+      ->setDefaultValue(0)
       ->setDisplayConfigurable('form', TRUE);
 
     return $fields;
