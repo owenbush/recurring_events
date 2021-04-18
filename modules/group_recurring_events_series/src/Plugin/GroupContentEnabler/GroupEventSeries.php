@@ -26,7 +26,6 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-
 class GroupEventSeries extends GroupContentEnablerBase {
 
   /**

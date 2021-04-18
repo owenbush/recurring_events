@@ -329,7 +329,7 @@ class EventSeriesForm extends ContentEntityForm {
       'consecutive_recurring_date[0][duration]',
       'consecutive_recurring_date[0][duration_units]',
       'excluded_dates_add_more',
-      'included_dates_add_more'
+      'included_dates_add_more',
     ];
 
     if ($trigger['#id'] !== 'edit-confirm' && array_search($trigger['#name'], $ignored_triggers) === FALSE && $editing) {

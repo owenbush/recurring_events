@@ -16,7 +16,15 @@ class GroupEntityseriesConfigTest extends EntityKernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['group', 'options', 'entity', 'variationcache', 'recurring_events', 'group_recurring_events_series', 'views'];
+  public static $modules = [
+    'group',
+    'options',
+    'entity',
+    'variationcache',
+    'recurring_events',
+    'group_recurring_events_series',
+    'views'
+  ];
 
   /**
    * Tests that the module's config installs properly.

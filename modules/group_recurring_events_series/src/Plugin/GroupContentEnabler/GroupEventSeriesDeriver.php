@@ -4,8 +4,14 @@ namespace Drupal\group_recurring_events_series\Plugin\GroupContentEnabler;
 
 use Drupal\recurring_events\Entity\EventSeriesType;
 use Drupal\Component\Plugin\Derivative\DeriverBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
+/**
+ * Provides a deriver for group event series entities.
+ */
 class GroupEventSeriesDeriver extends DeriverBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}.
@@ -18,8 +24,8 @@ class GroupEventSeriesDeriver extends DeriverBase {
 
       $this->derivatives[$name] = [
         'entity_bundle' => $name,
-        'label' => t('Group event series (@type)', ['@type' => $label]),
-        'description' => t('Adds %type content to groups both publicly and privately.', ['%type' => $label]),
+        'label' => $this->t('Group event series (@type)', ['@type' => $label]),
+        'description' => $this->t('Adds %type content to groups both publicly and privately.', ['%type' => $label]),
       ] + $base_plugin_definition;
     }
 
