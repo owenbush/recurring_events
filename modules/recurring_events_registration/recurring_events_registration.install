@@ -301,6 +301,7 @@ function recurring_events_registration_update_8007() {
 
   $registration_values = $database->select($table_name)
     ->fields($table_name, [$id_key, $revision_key] + $reg_fields)
+    ->condition('event_registration__registration', 1)
     ->execute()
     ->fetchAll();
 
@@ -353,6 +354,7 @@ function recurring_events_registration_update_8007() {
       $database->update($revision_table_name)
         ->fields($values_to_restore)
         ->condition($id_key, $value->{$id_key})
+        ->condition($revision_key, $value->{$revision_key})
         ->execute();
     }
   }

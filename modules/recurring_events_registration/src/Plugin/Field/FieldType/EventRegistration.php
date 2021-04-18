@@ -129,6 +129,11 @@ class EventRegistration extends DateRangeItem {
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     $properties = parent::propertyDefinitions($field_definition);
 
+    // We use the date fields for series registration only, so they do not need
+    // to be required.
+    $properties['value']->setRequired(FALSE);
+    $properties['end_value']->setRequired(FALSE);
+
     $properties['registration'] = DataDefinition::create('boolean')
       ->setLabel(t('Enable Registration'))
       ->setDescription(t('Select whether to enable registration for this series.'));
