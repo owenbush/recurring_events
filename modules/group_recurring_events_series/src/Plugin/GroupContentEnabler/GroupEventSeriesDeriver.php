@@ -14,7 +14,7 @@ class GroupEventSeriesDeriver extends DeriverBase {
   use StringTranslationTrait;
 
   /**
-   * {@inheritdoc}.
+   * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     $this->derivatives = [];

@@ -23,7 +23,7 @@ class GroupEntityseriesConfigTest extends EntityKernelTestBase {
     'variationcache',
     'recurring_events',
     'group_recurring_events_series',
-    'views'
+    'views',
   ];
 
   /**
