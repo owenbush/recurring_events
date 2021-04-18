@@ -80,9 +80,17 @@ function recurring_events_tokens($type, $tokens, array $data, array $options, Bu
   $replacements = [];
   if ($type == 'eventinstance' && !empty($data['eventinstance'])) {
     $event_instance = $data['eventinstance'];
-    $date_format = \Drupal::config('recurring_events.eventinstance.config')->get('date_format');
     $timezone = new \DateTimeZone(date_default_timezone_get());
     foreach ($tokens as $name => $original) {
+      $date_format = \Drupal::config('recurring_events.eventinstance.config')->get('date_format');
+
+      // Extract the date format if provided.
+      $custom_date_format_indicator = ":custom:";
+      if (strpos($name, $custom_date_format_indicator) !== false) {
+        $date_format = substr($name, strpos($name, $custom_date_format_indicator) + strlen($custom_date_format_indicator));
+        $name = substr($name, 0, strpos($name, $custom_date_format_indicator));
+      }
+
       switch ($name) {
         case 'title':
           $replacements[$original] = $event_instance->title->value;
