@@ -86,7 +86,7 @@ function recurring_events_tokens($type, $tokens, array $data, array $options, Bu
 
       // Extract the date format if provided.
       $custom_date_format_indicator = ":custom:";
-      if (strpos($name, $custom_date_format_indicator) !== false) {
+      if (strpos($name, $custom_date_format_indicator) !== FALSE) {
         $date_format = substr($name, strpos($name, $custom_date_format_indicator) + strlen($custom_date_format_indicator));
         $name = substr($name, 0, strpos($name, $custom_date_format_indicator));
       }
