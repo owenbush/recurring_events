@@ -18,6 +18,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\content_moderation\ModerationInformation;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\recurring_events_registration\NotificationService;
 
 /**
  * Form controller for Registrant edit forms.
@@ -83,6 +85,13 @@ class RegistrantForm extends ContentEntityForm {
   protected $cacheTagsInvalidator;
 
   /**
+   * The registration notification service.
+   *
+   * @var \Drupal\recurring_events_registration\NotificationService
+   */
+  protected $notificationService;
+
+  /**
    * The moderation information service.
    *
    * @var \Drupal\content_moderation\ModerationInformation
@@ -105,6 +114,7 @@ class RegistrantForm extends ContentEntityForm {
       $container->get('current_route_match'),
       $container->get('entity_type.manager'),
       $container->get('cache_tags.invalidator'),
+      $container->get('recurring_events_registration.notification_service'),
       $container->has('content_moderation.moderation_information') ? $container->get('content_moderation.moderation_information') : NULL
     );
   }
@@ -134,6 +144,8 @@ class RegistrantForm extends ContentEntityForm {
    *   The entity type manager service.
    * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cache_tags_invalidator
    *   The cache tags invalidator.
+   * @param \Drupal\recurring_events_registration\NotificationService $notification_service
+   *   The registation notification service.
    * @param \Drupal\content_moderation\ModerationInformation $moderation_information
    *   The moderation information service.
    */
@@ -149,6 +161,7 @@ class RegistrantForm extends ContentEntityForm {
     RouteMatchInterface $route_match,
     EntityTypeManagerInterface $entity_type_manager,
     CacheTagsInvalidatorInterface $cache_tags_invalidator,
+    NotificationService $notification_service,
     ModerationInformation $moderation_information = NULL) {
     $this->messenger = $messenger;
     $this->creationService = $creation_service;
@@ -158,6 +171,7 @@ class RegistrantForm extends ContentEntityForm {
     $this->routeMatch = $route_match;
     $this->entityTypeManager = $entity_type_manager;
     $this->cacheTagsInvalidator = $cache_tags_invalidator;
+    $this->notificationService = $notification_service;
     $this->moderationInformation = $moderation_information;
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
   }
@@ -472,7 +486,7 @@ class RegistrantForm extends ContentEntityForm {
           break;
       }
 
-      $this->messenger->addMessage($message);
+      $this->messenger->addMessage(new FormattableMarkup($this->notificationService->parseTokenizedString($message), []));
 
       // Invalidate tags to ensure that views count fields are updated.
       $tags = [];
@@ -489,7 +503,7 @@ class RegistrantForm extends ContentEntityForm {
       $this->cacheTagsInvalidator->invalidateTags($tags);
     }
     else {
-      $this->messenger->addMessage($this->config('recurring_events_registration.registrant.config')->get('registration_closed'));
+      $this->messenger->addMessage(new FormattableMarkup($this->notificationService->parseTokenizedString($this->config('recurring_events_registration.registrant.config')->get('registration_closed')), []));
     }
 
     $form_state->setRedirect('entity.registrant.add_form', ['eventinstance' => $event_instance->id()]);
