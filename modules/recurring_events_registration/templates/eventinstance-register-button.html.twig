@@ -9,7 +9,6 @@
  *   The attributes.class element may contain one or more classes.
  */
 #}
-
 {% block content %}
   <a {{ attributes }} href="{{ path('entity.registrant.add_form', {'eventinstance': entity.id.value}) }}">{{ 'Register'|t }}</a>
 {% endblock %}
