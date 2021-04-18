@@ -34,7 +34,7 @@ class RecurringEventsFullCalendarProcessor extends FullcalendarViewProcessorBase
     $calendar_options = json_decode($variables['#attached']['drupalSettings']['fullCalendarView'][$view_index]['calendar_options'], TRUE);
 
     // We only want to process eventinstances.
-    if (empty($calendar_options || $view->getBaseEntityType() !== 'eventinstance')) {
+    if (empty($calendar_options) || $view->getBaseEntityType()->id() !== 'eventinstance') {
       return;
     }
 
