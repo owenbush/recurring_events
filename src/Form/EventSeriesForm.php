@@ -184,16 +184,21 @@ class EventSeriesForm extends ContentEntityForm {
       ],
     ];
 
-    $form['included_dates']['#states'] = [
-      'visible' => [
-        ':input[name="recur_type"]' => ['!value' => 'custom'],
-      ],
-    ];
-    $form['excluded_dates']['#states'] = [
-      'visible' => [
-        ':input[name="recur_type"]' => ['!value' => 'custom'],
-      ],
-    ];
+    if (!empty($form['included_dates'])) {
+      $form['included_dates']['#states'] = [
+        'visible' => [
+          ':input[name="recur_type"]' => ['!value' => 'custom'],
+        ],
+      ];
+    }
+
+    if (!empty($form['excluded_dates'])) {
+      $form['excluded_dates']['#states'] = [
+        'visible' => [
+          ':input[name="recur_type"]' => ['!value' => 'custom'],
+        ],
+      ];
+    }
 
     // Get all the available recur type fields. Suppress altering so that we can
     // get a list of all the fields, so that after we alter, we can remove the
@@ -323,6 +328,8 @@ class EventSeriesForm extends ContentEntityForm {
     $ignored_triggers = [
       'consecutive_recurring_date[0][duration]',
       'consecutive_recurring_date[0][duration_units]',
+      'excluded_dates_add_more',
+      'included_dates_add_more'
     ];
 
     if ($trigger['#id'] !== 'edit-confirm' && array_search($trigger['#name'], $ignored_triggers) === FALSE && $editing) {
