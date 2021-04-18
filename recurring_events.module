@@ -170,15 +170,13 @@ function recurring_events_eventseries_insert(EntityInterface $entity) {
   $creation_service = \Drupal::service('recurring_events.event_creation_service');
   if (!empty($instances)) {
     foreach ($instances as $instance) {
-      if (empty($instance->eventseries_id->target_id)) {
-        $instance->set('eventseries_id', $entity->id());
-        $instance->setNewRevision(FALSE);
+      $instance->set('eventseries_id', $entity->id());
+      $instance->setNewRevision(FALSE);
 
-        $creation_service->configureDefaultInheritances($instance, $entity->id());
-        $creation_service->updateInstanceStatus($instance, $entity);
+      $creation_service->configureDefaultInheritances($instance, $entity->id());
+      $creation_service->updateInstanceStatus($instance, $entity);
 
-        $instance->save();
-      }
+      $instance->save();
     }
   }
 }
