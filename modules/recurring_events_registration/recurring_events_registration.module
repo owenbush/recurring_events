@@ -452,11 +452,9 @@ function recurring_events_registration_entity_extra_field_info() {
  */
 function recurring_events_registration_eventinstance_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   if ($display->getComponent('register_button')) {
-    /** @var \Drupal\recurring_events\Entity\EventInstance $instance */
-    $instance = $entity->getEventInstance();
     $service = \Drupal::service('recurring_events_registration.creation_service');
-    $service->setEventInstance($instance);
-    if ($instance && $service->registrationIsOpen()) {
+    $service->setEventInstance($entity);
+    if ($service->registrationIsOpen()) {
       $build['register_button'] = [
         '#theme' => 'eventinstance_register_button',
         '#entity' => $entity,
