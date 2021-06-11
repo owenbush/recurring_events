@@ -228,3 +228,9 @@ therefore can be overridden or extended, without affecting the rest of the
 series. This module also comes with a registration submodule, including the
 ability to register either for an entire series, or individual events.
 Using `date_recur` that would not be possible as there is only one entity.
+
+### Getting Started
+
+- Configure the Events Series and Event Instances at /admin/structure/events.
+- Add an event entity by going to Content -> Events -> Add Event (/events/add). Note: If you already have an Events node type, there may be some route collisions, and you may now see two menu items with a title of "Events".  See the recurring_events.routing.yml for the existing routes.
+- Note: If you try to add the newly created Event fields types (Consecutive Event, Daily Event, Monthly Event, Weekly Event) directly on a node/entity, you're doing it wrong and it will complain about missing plugin types.
