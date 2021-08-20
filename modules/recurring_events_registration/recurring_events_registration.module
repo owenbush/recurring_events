@@ -174,7 +174,7 @@ function recurring_events_registration_recurring_events_save_pre_instances_delet
   $registration_creation_service->setEventSeries($event_series);
 
   // Get all the registrants who have registered for any event in this series.
-  $registrants = $registration_creation_service->retrieveAllSeriesRegisteredParties();
+  $registrants = $registration_creation_service->retrieveAllSeriesRegisteredParties(TRUE);
   if (empty($registrants)) {
     return;
   }
@@ -201,19 +201,22 @@ function recurring_events_registration_entity_update(EntityInterface $entity) {
       return;
     }
 
-    $registration_creation_service = \Drupal::service('recurring_events_registration.creation_service');
-    $registration_creation_service->setEventInstance($entity);
+    // Only send emails if the event is in the future.
+    if ($entity->end_date->getTimestamp() > time()) {
+      $registration_creation_service = \Drupal::service('recurring_events_registration.creation_service');
+      $registration_creation_service->setEventInstance($entity);
 
-    $registrants = $registration_creation_service->retrieveRegisteredParties();
-    if (empty($registrants)) {
-      return;
-    }
+      $registrants = $registration_creation_service->retrieveRegisteredParties();
+      if (empty($registrants)) {
+        return;
+      }
 
-    $key = 'instance_modification_notification';
+      $key = 'instance_modification_notification';
 
-    // Send an email to all registrants.
-    foreach ($registrants as $registrant) {
-      recurring_events_registration_send_notification($key, $registrant);
+      // Send an email to all registrants.
+      foreach ($registrants as $registrant) {
+        recurring_events_registration_send_notification($key, $registrant);
+      }
     }
   }
 }
@@ -234,7 +237,10 @@ function recurring_events_registration_recurring_events_pre_delete_instance(Even
 
   // Send an email to all registrants.
   foreach ($registrants as $registrant) {
-    recurring_events_registration_send_notification($key, $registrant);
+    // Only send email notifications if this event instance is in the future.
+    if ($registration_creation_service->eventInstanceIsInFuture()) {
+      recurring_events_registration_send_notification($key, $registrant);
+    }
     $registrant->delete();
   }
 }
@@ -247,7 +253,7 @@ function recurring_events_registration_recurring_events_pre_delete_instances(Eve
   $registration_creation_service->setEventSeries($event_series);
 
   // Get all the registrants who have registered for any event in this series.
-  $registrants = $registration_creation_service->retrieveAllSeriesRegisteredParties();
+  $registrants = $registration_creation_service->retrieveAllSeriesRegisteredParties(TRUE);
   if (empty($registrants)) {
     return;
   }

@@ -218,21 +218,59 @@ class RegistrationCreationService {
   /**
    * Retreive all registered parties for a series.
    *
+   * @param bool $future_only
+   *   Whether to only return registered parties for future events.
+   *
    * @return array
    *   An array of registrants.
    */
-  public function retrieveAllSeriesRegisteredParties() {
+  public function retrieveAllSeriesRegisteredParties($future_only = FALSE) {
     $parties = [];
-    $properties = [
-      'eventseries_id' => $this->eventSeries->id(),
-    ];
 
-    $results = $this->storage->loadByProperties($properties);
+    if (($future_only && $this->eventSeriesHasFutureInstances()) || !$future_only) {
+      $properties = [
+        'eventseries_id' => $this->eventSeries->id(),
+      ];
 
-    if (!empty($results)) {
-      $parties = $results;
+      $results = $this->storage->loadByProperties($properties);
+
+      if (!empty($results)) {
+        $parties = $results;
+      }
     }
     return $parties;
+  }
+
+  /**
+   * Check if this event series has events in the future.
+   *
+   * @return bool
+   *   Whether the event series has future instances or not.
+   */
+  public function eventSeriesHasFutureInstances() {
+    $future_instances = FALSE;
+
+    $instances = $this->eventSeries->event_instances->referencedEntities();
+    if (!empty($instances)) {
+      foreach ($instances as $instance) {
+        $end_date = $instance->date->end_date->getTimestamp();
+        if ($end_date > time()) {
+          return TRUE;
+        }
+      }
+    }
+
+    return $future_instances;
+  }
+
+  /**
+   * Check if this event instance is a future event.
+   *
+   * @return bool
+   *   Whether the event instance is in the future.
+   */
+  public function eventInstanceIsInFuture() {
+    return $this->eventInstance->end_date->getTimestamp() > time();
   }
 
   /**
@@ -335,12 +373,13 @@ class RegistrationCreationService {
   /**
    * Retreive first user on the waitlist.
    *
-   * @return Drupal\recurring_events_registration\Entity\Registrant
+   * @return Drupal\recurring_events_registration\Entity\RegistrantInterface
    *   A fully loaded registrant entity.
    */
   public function retrieveFirstWaitlistParty() {
     $waitlisted_users = $this->retrieveWaitlistedParties();
     if (!empty($waitlisted_users)) {
+      /** @var Drupal\recurring_events_registration\Entity\RegistrantInterface */
       $first = reset($waitlisted_users);
       $this->moduleHandler->alter('recurring_events_registration_first_waitlist', $first);
       return $first;
@@ -633,7 +672,20 @@ class RegistrationCreationService {
         $first_waitlist->save();
 
         $key = 'promotion_notification';
-        recurring_events_registration_send_notification($key, $first_waitlist);
+        $reg_type = $this->getRegistrationDatesType();
+        $future_event = FALSE;
+        switch ($reg_type) {
+          case 'series':
+            $future_event = $this->eventSeriesHasFutureInstances();
+            break;
+
+          case 'instance':
+            $future_event = $this->eventInstanceIsInFuture();
+            break;
+        }
+        if ($future_event) {
+          recurring_events_registration_send_notification($key, $first_waitlist);
+        }
       }
     }
   }
