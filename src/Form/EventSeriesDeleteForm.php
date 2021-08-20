@@ -186,21 +186,6 @@ class EventSeriesDeleteForm extends ContentEntityDeleteForm {
       $form_state->setRedirectUrl($this->untranslatedEvent->toUrl('canonical'));
     }
     else {
-      $instances = $entity->event_instances->referencedEntities();
-
-      // Allow other modules to react prior to deleting all instances after a
-      // date configuration change.
-      \Drupal::moduleHandler()->invokeAll('recurring_events_pre_delete_instances', [$entity]);
-
-      // Loop through all instances and remove them.
-      foreach ($instances as $instance) {
-        $instance->delete();
-      }
-
-      // Allow other modules to react after deleting all instances after a date
-      // configuration change.
-      \Drupal::moduleHandler()->invokeAll('recurring_events_post_delete_instances', [$entity]);
-
       $entity->delete();
 
       \Drupal::logger('recurring_events')->notice('@type: deleted %title.',

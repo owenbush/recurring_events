@@ -318,6 +318,30 @@ function recurring_events_eventseries_type_insert(EntityInterface $entity) {
 /**
  * Implements hook_ENTITY_TYPE_delete().
  */
+function recurring_events_eventseries_delete(EntityInterface $entity) {
+  // Only delete instances if we're deleting the default translation of the
+  // series.
+  if ($entity->isDefaultTranslation()) {
+    $instances = $entity->event_instances->referencedEntities();
+
+    // Allow other modules to react prior to deleting all instances after a
+    // date configuration change.
+    \Drupal::moduleHandler()->invokeAll('recurring_events_pre_delete_instances', [$entity]);
+
+    // Loop through all instances and remove them.
+    foreach ($instances as $instance) {
+      $instance->delete();
+    }
+
+    // Allow other modules to react after deleting all instances after a date
+    // configuration change.
+    \Drupal::moduleHandler()->invokeAll('recurring_events_post_delete_instances', [$entity]);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
 function recurring_events_eventseries_type_delete(EntityInterface $entity) {
   // Event series types are tied to event instance types, and optionally
   // registrant types. Therefore, we need to delete equivalent instance and
