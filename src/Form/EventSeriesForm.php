@@ -18,6 +18,7 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Extension\ModuleHandler;
+use Drupal\user\UserInterface;
 
 /**
  * Form controller for the eventseries entity create form.
@@ -178,6 +179,17 @@ class EventSeriesForm extends ContentEntityForm {
 
     $editing = ($form_state->getBuildInfo()['form_id'] == 'eventseries_' . $entity->bundle() . '_edit_form');
 
+    // Set author name.
+    $display_name = '';
+    $owner = $entity->getOwner();
+    if ($owner instanceof UserInterface) {
+      $display_name = $owner->getDisplayName();
+    } else {
+      $entity->setOwnerId(0);
+      $owner = $entity->getOwner();
+      $display_name = $owner->getDisplayName();
+    }
+
     $form['custom_date']['#states'] = [
       'visible' => [
         ':input[name="recur_type"]' => ['value' => 'custom'],
@@ -305,7 +317,7 @@ class EventSeriesForm extends ContentEntityForm {
     $form['meta']['author'] = [
       '#type' => 'item',
       '#title' => $this->t('Author'),
-      '#markup' => $entity->getOwner()->getDisplayName(),
+      '#markup' => $display_name ?? '',
       '#wrapper_attributes' => ['class' => ['entity-meta__author']],
     ];
 
