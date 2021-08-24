@@ -270,7 +270,7 @@ class RegistrationCreationService {
    *   Whether the event instance is in the future.
    */
   public function eventInstanceIsInFuture() {
-    return $this->eventInstance->end_date->getTimestamp() > time();
+    return $this->eventInstance->date->end_date->getTimestamp() > time();
   }
 
   /**
