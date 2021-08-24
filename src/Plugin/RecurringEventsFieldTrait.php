@@ -110,20 +110,11 @@ trait RecurringEventsFieldTrait {
    */
   protected static function convertTimeTo24hourFormat($time) {
     $time_parts = [];
+    $timestamp = strtotime($time);
+    $time_24hr = \Drupal::service('date.formatter')->format($timestamp, 'html_time');
 
     // Split the start time up to separate out hours and minutes.
-    $time_parts = explode(':', $time);
-    // If this is PM then add 12 hours to the hours, unless the time was
-    // set as noon.
-    if (strpos($time_parts[1], 'pm') !== FALSE && $time_parts[0] != '12') {
-      $time_parts[0] += 12;
-    }
-    // If this is AM and the time was midnight, set hours to 00.
-    elseif (strpos($time_parts[1], 'am') !== FALSE && $time_parts[0] == '12') {
-      $time_parts[0] = '00';
-    }
-    // Strip out AM or PM from the time.
-    $time_parts[1] = substr($time_parts[1], 0, -3);
+    $time_parts = explode(':', $time_24hr);
 
     return $time_parts;
   }

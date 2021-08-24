@@ -15,7 +15,7 @@ use Drupal\Core\Field\FieldTypePluginManager;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\KeyValueStore\KeyValueFactory;
+use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\field_inheritance\Entity\FieldInheritanceInterface;
 
@@ -85,7 +85,7 @@ class EventCreationService {
   /**
    * The key value storage service.
    *
-   * @var \Drupal\Core\KeyValueStore\KeyValueFactory
+   * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface
    */
   protected $keyValueStore;
 
@@ -108,10 +108,10 @@ class EventCreationService {
    *   The module handler service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
-   * @param \Drupal\Core\KeyValueStore\KeyValueFactory $key_value
+   * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value
    *   The key value storage service.
    */
-  public function __construct(TranslationInterface $translation, Connection $database, LoggerChannelFactoryInterface $logger, Messenger $messenger, FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, ModuleHandler $module_handler, EntityTypeManagerInterface $entity_type_manager, KeyValueFactory $key_value) {
+  public function __construct(TranslationInterface $translation, Connection $database, LoggerChannelFactoryInterface $logger, Messenger $messenger, FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, ModuleHandler $module_handler, EntityTypeManagerInterface $entity_type_manager, KeyValueFactoryInterface $key_value) {
     $this->translation = $translation;
     $this->database = $database;
     $this->loggerFactory = $logger->get('recurring_events');
