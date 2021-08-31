@@ -7,7 +7,6 @@
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFieldItemList;
-use Drupal\Core\Config\FileStorage;
 
 /**
  * Install the schema updates for eventseries entities to add registration.
@@ -389,7 +388,8 @@ function recurring_events_registration_update_8008() {
         if (!empty($type)) {
           $new_configs[$config_name][$type] = $config_value;
         }
-      } else {
+      }
+      else {
         $active_config->set($config_key, $config_value);
       }
     }

@@ -184,7 +184,8 @@ class EventSeriesForm extends ContentEntityForm {
     $owner = $entity->getOwner();
     if ($owner instanceof UserInterface) {
       $display_name = $owner->getDisplayName();
-    } else {
+    }
+    else {
       $entity->setOwnerId(0);
       $owner = $entity->getOwner();
       $display_name = $owner->getDisplayName();

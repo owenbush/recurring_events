@@ -290,7 +290,7 @@ class RegistrantSettingsForm extends ConfigFormBase {
         '#maxlength' => 180,
         '#states' => [
           'visible' => [
-            'input[name="' . $type .'_enabled"]' => ['checked' => TRUE],
+            'input[name="' . $type . '_enabled"]' => ['checked' => TRUE],
           ],
         ],
       ];

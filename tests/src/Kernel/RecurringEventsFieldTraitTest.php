@@ -41,7 +41,12 @@ class RecurringEventsFieldTraitTest extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('eventseries');
     $this->installEntitySchema('eventinstance');
-    $this->installConfig(['field_inheritance', 'recurring_events', 'datetime', 'system']);
+    $this->installConfig([
+      'field_inheritance',
+      'recurring_events',
+      'datetime',
+      'system',
+    ]);
     $this->reflection = new \ReflectionClass('\Drupal\recurring_events\Plugin\RecurringEventsFieldTrait');
   }
 
@@ -66,4 +71,5 @@ class RecurringEventsFieldTraitTest extends KernelTestBase {
       $this->assertEquals($expected, $result);
     }
   }
+
 }

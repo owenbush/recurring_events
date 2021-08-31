@@ -60,7 +60,7 @@ function recurring_events_reminders_install() {
     ->setRequired(FALSE);
 
   \Drupal::entityDefinitionUpdateManager()
-  ->installFieldStorageDefinition('reminder_sent', 'eventinstance', 'eventinstance', $storage_definition);
+    ->installFieldStorageDefinition('reminder_sent', 'eventinstance', 'eventinstance', $storage_definition);
 
   // Set the default reminder email subject and body config.
   $config = \Drupal::configFactory()->getEditable('recurring_events_registration.registrant.config');
