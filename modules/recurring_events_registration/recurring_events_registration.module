@@ -109,6 +109,7 @@ function template_preprocess_registrant(array &$variables) {
  * Implements hook_mail().
  */
 function recurring_events_registration_mail($key, &$message, $params) {
+  /** @var \Drupal\recurring_events_registration\NotificationService */
   $service = \Drupal::service('recurring_events_registration.notification_service');
   $service->setKey($key)->setEntity($params['registrant']);
 
@@ -135,31 +136,31 @@ function recurring_events_registration_mail($key, &$message, $params) {
  */
 function recurring_events_registration_recurring_events_registration_notification_types_alter(array &$notification_types) {
   $notification_types += [
-    'registration' => [
+    'registration_notification' => [
       'name' => t('Registration Notification'),
       'description' => t('Send an email to a registrant to confirm they were registered for an event?'),
     ],
-    'waitlist' => [
+    'waitlist_notification' => [
       'name' => t('Waitlist Notification'),
       'description' => t('Send an email to a registrant to confirm they were added to the waitlist?'),
     ],
-    'promotion' => [
+    'promotion_notification' => [
       'name' => t('Promotion Notification'),
       'description' => t('Send an email to a registrant to confirm they were promoted from the waitlist?'),
     ],
-    'instance_deletion' => [
+    'instance_deletion_notification' => [
       'name' => t('Instance Deletion Notification'),
       'description' => t('Send an email to a registrant to confirm an instance deletion?'),
     ],
-    'series_deletion' => [
+    'series_deletion_notification' => [
       'name' => t('Series Deletion Notification'),
       'description' => t('Send an email to a registrant to confirm a series deletion?'),
     ],
-    'instance_modification' => [
+    'instance_modification_notification' => [
       'name' => t('Instance Modification Notification'),
       'description' => t('Send an email to a registrant to confirm an instance modification?'),
     ],
-    'series_modification' => [
+    'series_modification_notification' => [
       'name' => t('Series Modification Notification'),
       'description' => t('Send an email to a registrant to confirm a series modification?'),
     ],

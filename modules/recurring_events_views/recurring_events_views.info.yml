@@ -1,9 +1,8 @@
 name: 'Recurring Events Views'
 type: module
 description: 'Swaps all recurring events list builders for views'
-core: 8.x
 package: 'Recurring Events'
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^8.9 || ^9
 dependencies:
   - drupal:views
   - recurring_events:recurring_events

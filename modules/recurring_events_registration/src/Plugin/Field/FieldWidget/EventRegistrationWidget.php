@@ -6,6 +6,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\datetime_range\Plugin\Field\FieldWidget\DateRangeDefaultWidget;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * Plugin implementation of the 'event registration' widget.

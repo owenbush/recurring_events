@@ -7,6 +7,7 @@
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\recurring_events_registration\Plugin\Field\ComputedRegistrantTitleFieldItemList;
+use Drupal\Core\Config\FileStorage;
 
 /**
  * Install the schema updates for eventseries entities to add registration.
@@ -356,6 +357,46 @@ function recurring_events_registration_update_8007() {
         ->condition($id_key, $value->{$id_key})
         ->condition($revision_key, $value->{$revision_key})
         ->execute();
+    }
+  }
+}
+
+/**
+ * Copies old notification config into new structure.
+ */
+function recurring_events_registration_update_8008() {
+  $configs = \Drupal::config('recurring_events_registration.registrant.config')->get();
+
+  $active_config = \Drupal::configFactory()->getEditable('recurring_events_registration.registrant.config');
+  $active_config->delete();
+
+  \Drupal::service('cache.config')->invalidateAll();
+
+  $new_configs = [];
+  if (!empty($configs)) {
+    foreach ($configs as $config_key => $config_value) {
+      if (strpos($config_key, '_notification_') !== FALSE) {
+        $config_name = preg_replace('/_(enabled|subject|body)$/', '', $config_key);
+        if (strpos($config_key, '_enabled') !== FALSE) {
+          $type = 'enabled';
+        }
+        if (strpos($config_key, 'subject') !== FALSE) {
+          $type = 'subject';
+        }
+        if (strpos($config_key, 'body') !== FALSE) {
+          $type = 'body';
+        }
+        if (!empty($type)) {
+          $new_configs[$config_name][$type] = $config_value;
+        }
+      } else {
+        $active_config->set($config_key, $config_value);
+      }
+    }
+
+    if (!empty($new_configs)) {
+      $active_config->set('notifications', $new_configs);
+      $active_config->save(TRUE);
     }
   }
 }

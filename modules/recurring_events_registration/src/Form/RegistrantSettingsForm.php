@@ -108,12 +108,16 @@ class RegistrantSettingsForm extends ConfigFormBase {
     $notification_types = [];
     $this->moduleHandler->alter('recurring_events_registration_notification_types', $notification_types);
 
+    $notification_config = [];
     foreach ($notification_types as $type => $notification) {
-      $config
-        ->set($type . '_notification_enabled', $form_state->getValue($type . '_notification'))
-        ->set($type . '_notification_subject', $form_state->getValue($type . '_notification_subject'))
-        ->set($type . '_notification_body', $form_state->getValue($type . '_notification_body'));
+      $notification_config[$type] = [
+        'enabled' => $form_state->getValue($type . '_enabled'),
+        'subject' => $form_state->getValue($type . '_subject'),
+        'body' => $form_state->getValue($type . '_body'),
+      ];
     }
+
+    $config->set('notifications', $notification_config);
     $config->save();
 
     parent::submitForm($form, $form_state);
@@ -132,6 +136,7 @@ class RegistrantSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('recurring_events_registration.registrant.config');
+
     $form['process'] = [
       '#type' => 'details',
       '#title' => $this->t('Registration Form'),
@@ -263,6 +268,7 @@ class RegistrantSettingsForm extends ConfigFormBase {
 
     $notification_types = [];
     $this->moduleHandler->alter('recurring_events_registration_notification_types', $notification_types);
+    $notification_config = $config->get('notifications');
 
     foreach ($notification_types as $type => $notification) {
       $form['notifications'][$type] = [
@@ -271,31 +277,31 @@ class RegistrantSettingsForm extends ConfigFormBase {
         '#open' => TRUE,
         '#group' => 'emails',
       ];
-      $form['notifications'][$type][$type . '_notification'] = [
+      $form['notifications'][$type][$type . '_enabled'] = [
         '#type' => 'checkbox',
         '#title' => $notification['name'],
         '#description' => $notification['description'],
-        '#default_value' => $config->get($type . '_notification_enabled'),
+        '#default_value' => $notification_config[$type]['enabled'],
       ];
-      $form['notifications'][$type][$type . '_notification_subject'] = [
+      $form['notifications'][$type][$type . '_subject'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Subject'),
-        '#default_value' => $config->get($type . '_notification_subject'),
+        '#default_value' => $notification_config[$type]['subject'],
         '#maxlength' => 180,
         '#states' => [
           'visible' => [
-            'input[name="' . $type . '_notification"]' => ['checked' => TRUE],
+            'input[name="' . $type .'_enabled"]' => ['checked' => TRUE],
           ],
         ],
       ];
-      $form['notifications'][$type][$type . '_notification_body'] = [
+      $form['notifications'][$type][$type . '_body'] = [
         '#type' => 'textarea',
         '#title' => $this->t('Body'),
-        '#default_value' => $config->get($type . '_notification_body'),
+        '#default_value' => $notification_config[$type]['body'],
         '#rows' => 15,
         '#states' => [
           'visible' => [
-            'input[name="' . $type . '_notification"]' => ['checked' => TRUE],
+            'input[name="' . $type . '_enabled"]' => ['checked' => TRUE],
           ],
         ],
       ];
@@ -304,7 +310,7 @@ class RegistrantSettingsForm extends ConfigFormBase {
         'tokens' => $tokens,
         '#states' => [
           'visible' => [
-            'input[name="' . $type . '_notification"]' => ['checked' => TRUE],
+            'input[name="' . $type . '_enabled"]' => ['checked' => TRUE],
           ],
         ],
       ];

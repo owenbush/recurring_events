@@ -1,0 +1,8 @@
+name: Recurring Events Registration Reminders
+type: module
+description: Enables reminders to be sent for upcoming events.
+package: Recurring Events
+core_version_requirement: ^8.9 || ^9
+dependencies:
+  - recurring_events
+  - recurring_events_registration

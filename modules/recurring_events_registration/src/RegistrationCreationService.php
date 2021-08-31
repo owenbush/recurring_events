@@ -13,6 +13,7 @@ use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Utility\Token;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a service with helper functions for registration creation.
@@ -373,7 +374,7 @@ class RegistrationCreationService {
   /**
    * Retreive first user on the waitlist.
    *
-   * @return Drupal\recurring_events_registration\Entity\RegistrantInterface
+   * @return \Drupal\recurring_events_registration\Entity\RegistrantInterface
    *   A fully loaded registrant entity.
    */
   public function retrieveFirstWaitlistParty() {

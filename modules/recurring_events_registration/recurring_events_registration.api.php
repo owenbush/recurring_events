@@ -44,7 +44,7 @@ function hook_recurring_events_registration_first_waitlist_alter(Registrant $reg
  *   The notification types array.
  */
 function hook_recurring_events_registration_notification_types_alter(array &$notification_types) {
-  $notification_types['rename'] = [
+  $notification_types['rename_notification'] = [
     'name' => t('Event Rename Notification'),
     'description' => t('Send an email to registrants when the event name changes?'),
   ];

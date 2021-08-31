@@ -9,6 +9,7 @@ use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Utility\Token;
 use Drupal\recurring_events_registration\Entity\RegistrantInterface;
 use Drupal\Core\Extension\ModuleHandler;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a service with helper functions to facilitate notifications.
@@ -290,8 +291,9 @@ class NotificationService {
    */
   protected function getConfigValue($name) {
     $value = FALSE;
-    if (!is_null($this->configFactory->get($this->getConfigName())->get($name))) {
-      $value = $this->configFactory->get($this->getConfigName())->get($name);
+    $notifications = $this->configFactory->get($this->getConfigName())->get('notifications');
+    if (!is_null($notifications[$this->key][$name])) {
+      $value = $notifications[$this->key][$name];
     }
 
     return $value;
@@ -333,8 +335,7 @@ class NotificationService {
       return TRUE;
     }
     if ($key) {
-      $value = $key . '_enabled';
-      return (bool) $this->getConfigValue($value);
+      return (bool) $this->getConfigValue('enabled');
     }
     return FALSE;
   }
@@ -353,8 +354,7 @@ class NotificationService {
     if ($key) {
       $subject = $this->subject;
       if (empty($subject)) {
-        $value = $key . '_subject';
-        $subject = $this->getConfigValue($value);
+        $subject = $this->getConfigValue('subject');
         $this->setSubject($subject);
       }
 
@@ -388,8 +388,7 @@ class NotificationService {
     if ($key) {
       $message = $this->message;
       if (empty($message)) {
-        $value = $key . '_body';
-        $message = $this->getConfigValue($value);
+        $message = $this->getConfigValue('body');
         $this->setMessage($message);
       }
 
@@ -424,7 +423,9 @@ class NotificationService {
       'eventinstance' => $this->entity->getEventInstance(),
       'eventseries' => $this->entity->getEventSeries(),
     ];
-    return $this->token->replace($string, $data);
+    // Double token replace to allow for global token replacements containing
+    // tokens themselves.
+    return $this->token->replace($this->token->replace($string, $data), $data);
   }
 
   /**
