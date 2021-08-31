@@ -420,8 +420,8 @@ class NotificationService {
   public function parseTokenizedString($string) {
     $data = [
       'registrant' => $this->entity,
-      'eventinstance' => $this->entity->getEventInstance(),
-      'eventseries' => $this->entity->getEventSeries(),
+      'eventinstance' => $this->entity ? $this->entity->getEventInstance() : NULL,
+      'eventseries' => $this->entity ? $this->entity->getEventSeries() : NULL,
     ];
     // Double token replace to allow for global token replacements containing
     // tokens themselves.

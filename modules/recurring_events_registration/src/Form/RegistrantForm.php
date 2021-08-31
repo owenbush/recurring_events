@@ -462,6 +462,7 @@ class RegistrantForm extends ContentEntityForm {
     $reg_type = $this->creationService->getRegistrationType();
     $registration = $this->creationService->hasRegistration();
 
+    $this->notificationService->setEntity($this->entity);
     if ($registration && $registration_open && ($availability > 0 || $availability == -1 || $waitlist)) {
       $add_to_waitlist = (int) $form_state->getValue('add_to_waitlist');
       $this->entity->setEventSeries($event_series);
@@ -478,8 +479,12 @@ class RegistrantForm extends ContentEntityForm {
           }
           break;
 
+        case SAVED_UPDATED:
+          $message = $this->t('Registrant successfully updated');
+          break;
+
         default:
-          $message = $this->config('recurring_events_registration.registrant.config')->get('successfully_registered_waitlist');
+          $message = $this->config('recurring_events_registration.registrant.config')->get('successfully_registered');
           if ($add_to_waitlist) {
             $message = $this->config('recurring_events_registration.registrant.config')->get('successfully_registered_waitlist');
           }
@@ -503,7 +508,13 @@ class RegistrantForm extends ContentEntityForm {
       $this->cacheTagsInvalidator->invalidateTags($tags);
     }
     else {
-      $this->messenger->addMessage(new FormattableMarkup($this->notificationService->parseTokenizedString($this->config('recurring_events_registration.registrant.config')->get('registration_closed')), []));
+      if ($this->entity->isNew()) {
+        $message = $this->config('recurring_events_registration.registrant.config')->get('registration_closed');
+      }
+      else {
+        $message = $this->t('Registrant successfully updated');
+      }
+      $this->messenger->addMessage(new FormattableMarkup($this->notificationService->parseTokenizedString($message), []));
     }
 
     $form_state->setRedirect('entity.registrant.add_form', ['eventinstance' => $event_instance->id()]);
