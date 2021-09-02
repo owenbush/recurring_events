@@ -1,49 +1,53 @@
 <?php
 
-namespace Drupal\Tests\recurring_events\Unit;
+namespace Drupal\Tests\recurring_events\Kernel;
 
-use Drupal\recurring_events\Plugin\Field\FieldType\ConsecutiveRecurringDate;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\Tests\UnitTestCase;
+use Drupal\recurring_events\Plugin\Field\FieldType\ConsecutiveRecurringDate;
 
 /**
  * @coversDefaultClass \Drupal\recurring_events\Plugin\Field\FieldType\ConsecutiveRecurringDate
  * @group recurring_events
+ * @requires module field_inheritance
  */
-class ConsecutiveRecurringDateTest extends UnitTestCase {
+class ConsecutiveRecurringDateTest extends KernelTestBase {
+
+  /**
+   * The modules to load to run the test.
+   *
+   * @var array
+   */
+  protected static $modules = [
+    'datetime',
+    'datetime_range',
+    'field_inheritance',
+    'options',
+    'recurring_events',
+    'system',
+    'text',
+    'user',
+  ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-    // Some of Drupal's global functions are unavailable so we mock them up in
-    // a separate file to keep them from muddying the global scope.
-    require_once 'includes/OverriddenGlobalFunctions.php';
-
-    // We need a mocked container which is used by DrupalDateTime.
-    $container = new ContainerBuilder();
-    \Drupal::setContainer($container);
-
-    // DrupalDateTime also needs the language manager and a mocked language.
-    $language_manager_mock = $this->getMockBuilder('Drupal\\Core\\Language\\LanguageManagerInterface')
-      ->disableOriginalConstructor()
-      ->getMock();
-    $language_mock = $this->createMock('Drupal\\Core\\Language\\LanguageInterface');
-
-    // Ensure that getCurrentLanguage returns the mocked language.
-    $language_manager_mock->expects($this->any())
-      ->method('getCurrentLanguage')
-      ->will($this->returnValue($language_mock));
-
-    $container->set('language_manager', $language_manager_mock);
+    $this->installEntitySchema('eventseries');
+    $this->installEntitySchema('eventinstance');
+    $this->installConfig([
+      'field_inheritance',
+      'recurring_events',
+      'datetime',
+      'system',
+    ]);
   }
 
   /**
    * Tests ConsecutiveRecurringDate::findDailyDatesBetweenDates().
    */
-  public function testFindDailyDatesBetweenDates() {
+  public function testConvertTimeTo24hourFormat() {
     // We want to test for generating all the days between Jan 1st and Jan 7th.
     $start_date = new DrupalDateTime('2019-01-01 00:00:00');
     $end_date = new DrupalDateTime('2019-01-07 00:00:00');
@@ -72,7 +76,7 @@ class ConsecutiveRecurringDateTest extends UnitTestCase {
       $dates[] = $date->format('r');
     }
 
-    $this->assertSame($expected_dates, $dates);
+    $this->assertEquals($expected_dates, $dates);
   }
 
   /**
@@ -115,5 +119,4 @@ class ConsecutiveRecurringDateTest extends UnitTestCase {
 
     $this->assertSame($expected_dates, $dates);
   }
-
 }
