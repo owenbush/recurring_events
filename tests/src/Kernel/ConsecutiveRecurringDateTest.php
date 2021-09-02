@@ -119,4 +119,5 @@ class ConsecutiveRecurringDateTest extends KernelTestBase {
 
     $this->assertSame($expected_dates, $dates);
   }
+
 }
