@@ -1,4 +1,7 @@
 # Registrant Entities.
+view registrant entities:
+  title: 'View registrant entities'
+  description: 'View registrant entities'
 add registrant entities:
   title: 'Create new registrant entities'
   description: 'Create new registrant entities'
