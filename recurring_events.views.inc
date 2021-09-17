@@ -36,19 +36,50 @@ function recurring_events_views_data_alter(array &$data) {
 
   // @todo Remove these declarations when
   // https://www.drupal.org/project/drupal/issues/2489476 is resolved.
-  $data['eventinstance_field_data']['date__value']['filter']['id'] = 'datetime';
-  $data['eventinstance_field_data']['date__value']['filter']['field_name'] = 'date';
-  $data['eventinstance_field_data']['date__value']['sort']['id'] = 'datetime';
-  $data['eventinstance_field_data']['date__value']['sort']['field_name'] = 'date';
-  $data['eventinstance_field_data']['date__value']['argument']['id'] = 'datetime';
-  $data['eventinstance_field_data']['date__value']['argument']['field_name'] = 'date';
+  $table_name = 'eventinstance_field_data';
 
-  $data['eventinstance_field_data']['date__end_value']['filter']['id'] = 'datetime';
-  $data['eventinstance_field_data']['date__end_value']['filter']['field_name'] = 'date';
-  $data['eventinstance_field_data']['date__end_value']['sort']['id'] = 'datetime';
-  $data['eventinstance_field_data']['date__end_value']['sort']['field_name'] = 'date';
-  $data['eventinstance_field_data']['date__end_value']['argument']['id'] = 'datetime';
-  $data['eventinstance_field_data']['date__end_value']['argument']['field_name'] = 'date';
+  $fields = [
+    'Event Date' => 'date__value',
+    'Event Date (End)' => 'date__end_value',
+  ];
+
+  $arguments = [
+    // Argument type => help text.
+    'year' => t('Date in the form of YYYY.'),
+    'month' => t('Date in the form of MM (01 - 12).'),
+    'day' => t('Date in the form of DD (01 - 31).'),
+    'week' => t('Date in the form of WW (01 - 53).'),
+    'year_month' => t('Date in the form of YYYYMM.'),
+    'full_date' => t('Date in the form of CCYYMMDD.'),
+  ];
+
+  foreach ($fields as $field => $field_name) {
+    $data[$table_name][$field_name]['filter']['id'] = 'datetime';
+    $data[$table_name][$field_name]['filter']['field_name'] = 'date';
+    $data[$table_name][$field_name]['sort']['id'] = 'datetime';
+    $data[$table_name][$field_name]['sort']['field_name'] = 'date';
+    $data[$table_name][$field_name]['argument']['id'] = 'datetime';
+    $data[$table_name][$field_name]['argument']['field_name'] = 'date';
+
+    $group = $data[$table_name][$field_name]['group'];
+
+    foreach ($arguments as $argument_type => $help_text) {
+      $data[$table_name][$field_name . '_' . $argument_type] = [
+        'title' => t('@label (@argument)', [
+          '@label' => $field,
+          '@argument' => $argument_type,
+        ]),
+        'help' => $help_text,
+        'argument' => [
+          'field' => $field_name,
+          'id' => 'datetime_' . $argument_type,
+          'entity_type' => 'eventinstance',
+          'field_name' => 'date',
+        ],
+        'group' => $group,
+      ];
+    }
+  }
 
   // We do not want people adding the recurrence fields to views as they will
   // not work. Instead for any fields necessary we create them above.
