@@ -258,9 +258,9 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
    *
    * @param int $day_of_month
    *   The day of the month.
-   * @param Drupal\Core\Datetime\DrupalDateTime $start_date
+   * @param \Drupal\Core\Datetime\DrupalDateTime $start_date
    *   The start date.
-   * @param Drupal\Core\Datetime\DrupalDateTime $end_date
+   * @param \Drupal\Core\Datetime\DrupalDateTime $end_date
    *   The end date.
    *
    * @return array
@@ -315,7 +315,7 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
 
     // Loop through each month checking to see if the day of the month is a
     // valid day, until the end date has been surpassed.
-    while ($start->getTimestamp() <= $end->getTimestamp()) {
+    while ($start->getTimestamp() <= $end_date->getTimestamp()) {
       // If we do not clone here we end up modifying the value of start in
       // the array and get some funky dates returned.
       $dates[] = clone $start;
@@ -331,10 +331,10 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
    *
    * @param int $day_of_month
    *   The day of the month.
-   * @param Drupal\Core\Datetime\DrupalDateTime $date
+   * @param \Drupal\Core\Datetime\DrupalDateTime $date
    *   The start date.
    *
-   * @return Drupal\Core\Datetime\DrupalDateTime
+   * @return \Drupal\Core\Datetime\DrupalDateTime
    *   The next occurrence of a specific day of the month.
    */
   public static function findNextMonthDay($day_of_month, DrupalDateTime $date) {
@@ -368,9 +368,9 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
    *   Which occurrence of the weekday to find.
    * @param string $weekday
    *   The name of the day of the week.
-   * @param Drupal\Core\Datetime\DrupalDateTime $start_date
+   * @param \Drupal\Core\Datetime\DrupalDateTime $start_date
    *   The start date.
-   * @param Drupal\Core\Datetime\DrupalDateTime $end_date
+   * @param \Drupal\Core\Datetime\DrupalDateTime $end_date
    *   The end date.
    *
    * @return array

@@ -18,6 +18,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\field_inheritance\Entity\FieldInheritanceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a service with helper functions useful during event creation.
