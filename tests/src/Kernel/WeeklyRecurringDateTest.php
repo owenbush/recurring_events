@@ -92,4 +92,5 @@ class WeeklyRecurringDateTest extends KernelTestBase {
 
     $this->assertEquals($expected_dates, $actual_dates);
   }
+
 }

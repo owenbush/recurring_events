@@ -78,4 +78,5 @@ class DailyRecurringDateTest extends KernelTestBase {
 
     $this->assertEquals($expected_dates, $dates);
   }
+
 }
