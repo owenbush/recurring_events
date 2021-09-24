@@ -13,6 +13,9 @@ use Drupal\Core\Url;
  * Implements hook_ENTITY_TYPE_insert().
  */
 function group_recurring_events_series_eventseries_type_insert(EventSeriesTypeInterface $eventserices_type) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   \Drupal::service('plugin.manager.group_content_enabler')->clearCachedDefinitions();
 }
 

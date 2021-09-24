@@ -341,6 +341,9 @@ function recurring_events_registration_theme_suggestions_registrant(array $varia
  * Implements hook_ENTITY_TYPE_insert().
  */
 function recurring_events_registration_registrant_insert(EntityInterface $entity) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   $entity_type = $entity->getEntityTypeId();
   $bundle = $entity->bundle();
   $inherited_field_ids = \Drupal::entityQuery('field_inheritance')

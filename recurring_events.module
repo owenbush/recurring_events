@@ -162,6 +162,9 @@ function recurring_events_eventseries_presave(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_insert().
  */
 function recurring_events_eventseries_insert(EntityInterface $entity) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   // When we initially create the eventseries we actually create the instances
   // before the eventseries gets saved for the first time, so we have no ID for
   // the series at that point. Now that the eventseries is properly saved we can
@@ -185,6 +188,9 @@ function recurring_events_eventseries_insert(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_insert().
  */
 function recurring_events_field_inheritance_insert(EntityInterface $entity) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   if ($entity->sourceEntityType() === 'eventseries' && $entity->destinationEntityType() === 'eventinstance') {
     $creation_service = \Drupal::service('recurring_events.event_creation_service');
     $bundle = $entity->destinationEntityBundle();
@@ -245,6 +251,9 @@ function recurring_events_eventseries_update(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_insert().
  */
 function recurring_events_eventseries_type_insert(EntityInterface $entity) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   // Event series types are tied to event instance types, and optionally
   // registrant types. Therefore, we need to create equivalent instance and
   // registrant types every time an event series type is created.

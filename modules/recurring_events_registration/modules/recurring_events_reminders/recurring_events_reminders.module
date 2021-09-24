@@ -61,6 +61,9 @@ function recurring_events_reminders_entity_base_field_info_alter(&$fields, Entit
  * Set the reminder date for all instances in this series.
  */
 function recurring_events_reminders_eventseries_insert(EntityInterface $entity) {
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   if ($entity->registration_reminders->reminder) {
     $amount = $entity->registration_reminders->reminder_amount;
     $units = $entity->registration_reminders->reminder_units;
