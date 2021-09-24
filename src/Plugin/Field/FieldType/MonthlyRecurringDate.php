@@ -157,36 +157,36 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
   public static function buildDiffArray(array $entity_config, array $form_config) {
     $diff = parent::buildDiffArray($entity_config, $form_config);
 
-    if ($entity_config['type'] === 'monthly') {
-      if ($entity_config['monthly_type'] !== $form_config['monthly_type']) {
+    if ($entity_config['type'] === 'monthly_recurring_date') {
+      if (($entity_config['monthly_type'] ?? '') !== ($form_config['monthly_type'] ?? '')) {
         $diff['monthly_type'] = [
           'label' => t('Monthly Type'),
-          'stored' => $entity_config['monthly_type'],
-          'override' => $form_config['monthly_type'],
+          'stored' => $entity_config['monthly_type'] ?? '',
+          'override' => $form_config['monthly_type'] ?? '',
         ];
       }
       if ($entity_config['monthly_type'] === 'weekday') {
-        if ($entity_config['day_occurrence'] !== $form_config['day_occurrence']) {
+        if (($entity_config['day_occurrence'] ?? []) !== ($form_config['day_occurrence'] ?? [])) {
           $diff['day_occurrence'] = [
             'label' => t('Day Occurrence'),
-            'stored' => implode(',', $entity_config['day_occurrence']),
-            'override' => implode(',', $form_config['day_occurrence']),
+            'stored' => implode(',', ($entity_config['day_occurrence'] ?? [])),
+            'override' => implode(',', ($form_config['day_occurrence'] ?? [])),
           ];
         }
-        if ($entity_config['days'] !== $form_config['days']) {
+        if (($entity_config['days'] ?? []) !== ($form_config['days'] ?? [])) {
           $diff['days'] = [
             'label' => t('Days'),
-            'stored' => implode(',', $entity_config['days']),
-            'override' => implode(',', $form_config['days']),
+            'stored' => implode(',', ($entity_config['days'] ?? [])),
+            'override' => implode(',', ($form_config['days'] ?? [])),
           ];
         }
       }
       else {
-        if ($entity_config['day_of_month'] !== $form_config['day_of_month']) {
+        if (($entity_config['day_of_month'] ?? []) !== ($form_config['day_of_month'] ?? [])) {
           $diff['day_of_month'] = [
             'label' => t('Day of the Month'),
-            'stored' => implode(',', $entity_config['day_of_month']),
-            'override' => implode(',', $form_config['day_of_month']),
+            'stored' => implode(',', ($entity_config['day_of_month'] ?? [])),
+            'override' => implode(',', ($form_config['day_of_month'] ?? [])),
           ];
         }
       }

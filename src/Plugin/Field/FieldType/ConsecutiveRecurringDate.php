@@ -187,46 +187,46 @@ class ConsecutiveRecurringDate extends DateRangeItem implements RecurringEventsF
         'override' => $form_config['end_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
       ];
     }
-    if ($entity_config['time'] !== $form_config['time']) {
+    if (($entity_config['time'] ?? '') !== ($form_config['time'] ?? '')) {
       $diff['time'] = [
         'label' => t('Time'),
-        'stored' => $entity_config['time'],
-        'override' => $form_config['time'],
+        'stored' => $entity_config['time'] ?? '',
+        'override' => $form_config['time'] ?? '',
       ];
     }
-    if ($entity_config['end_time'] !== $form_config['end_time']) {
+    if (($entity_config['end_time'] ?? '') !== ($form_config['end_time'] ?? '')) {
       $diff['end_time'] = [
         'label' => t('End Time'),
-        'stored' => $entity_config['end_time'],
-        'override' => $form_config['end_time'],
+        'stored' => $entity_config['end_time'] ?? '',
+        'override' => $form_config['end_time'] ?? '',
       ];
     }
-    if ($entity_config['duration'] !== $form_config['duration']) {
+    if (($entity_config['duration'] ?? '') !== ($form_config['duration'] ?? '')) {
       $diff['duration'] = [
         'label' => t('Duration'),
-        'stored' => $entity_config['duration'],
-        'override' => $form_config['duration'],
+        'stored' => $entity_config['duration'] ?? '',
+        'override' => $form_config['duration'] ?? '',
       ];
     }
-    if ($entity_config['duration_units'] !== $form_config['duration_units']) {
+    if (($entity_config['duration_units'] ?? '') !== ($form_config['duration_units'] ?? '')) {
       $diff['duration_units'] = [
         'label' => t('Duration Units'),
-        'stored' => $entity_config['duration_units'],
-        'override' => $form_config['duration_units'],
+        'stored' => $entity_config['duration_units'] ?? '',
+        'override' => $form_config['duration_units'] ?? '',
       ];
     }
-    if ($entity_config['buffer'] !== $form_config['buffer']) {
+    if (($entity_config['buffer'] ?? '') !== ($form_config['buffer'] ?? '')) {
       $diff['buffer'] = [
         'label' => t('Buffer'),
-        'stored' => $entity_config['buffer'],
-        'override' => $form_config['buffer'],
+        'stored' => $entity_config['buffer'] ?? '',
+        'override' => $form_config['buffer'] ?? '',
       ];
     }
-    if ($entity_config['buffer_units'] !== $form_config['buffer_units']) {
+    if (($entity_config['buffer_units'] ?? '') !== ($form_config['buffer_units'] ?? '')) {
       $diff['buffer_units'] = [
         'label' => t('Buffer Units'),
-        'stored' => $entity_config['buffer_units'],
-        'override' => $form_config['buffer_units'],
+        'stored' => $entity_config['buffer_units'] ?? '',
+        'override' => $form_config['buffer_units'] ?? '',
       ];
     }
 

@@ -61,7 +61,7 @@ function recurring_events_views_data_alter(array &$data) {
     $data[$table_name][$field_name]['argument']['id'] = 'datetime';
     $data[$table_name][$field_name]['argument']['field_name'] = 'date';
 
-    $group = $data[$table_name][$field_name]['group'];
+    $group = $data[$table_name][$field_name]['group'] ?? '';
 
     foreach ($arguments as $argument_type => $help_text) {
       $data[$table_name][$field_name . '_' . $argument_type] = [

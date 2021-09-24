@@ -134,18 +134,18 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
         'override' => $form_config['end_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
       ];
     }
-    if ($entity_config['time'] !== $form_config['time']) {
+    if (($entity_config['time'] ?? '') !== ($form_config['time'] ?? '')) {
       $diff['time'] = [
         'label' => t('Time'),
-        'stored' => $entity_config['time'],
-        'override' => $form_config['time'],
+        'stored' => $entity_config['time'] ?? '',
+        'override' => $form_config['time'] ?? '',
       ];
     }
-    if ($entity_config['duration'] !== $form_config['duration']) {
+    if (($entity_config['duration'] ?? '') !== ($form_config['duration'] ?? '')) {
       $diff['duration'] = [
         'label' => t('Duration'),
-        'stored' => $entity_config['duration'],
-        'override' => $form_config['duration'],
+        'stored' => $entity_config['duration'] ?? '',
+        'override' => $form_config['duration'] ?? '',
       ];
     }
 
