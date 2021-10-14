@@ -49,6 +49,19 @@ class RecurringEventsFullCalendarProcessor extends FullcalendarViewProcessorBase
 
     foreach ($view->result as $key => $row) {
       $current_entity = $row->_entity;
+
+      // Set the row_index property used by advancedRender function.
+      $view->row_index = $row->index;
+
+      // Render all fields to so they can be used in rewrite.
+      foreach ($fields as $name => $field) {
+        if (method_exists($field, 'advancedRender')) {
+          // Set the row_index property used by advancedRender function.
+          $field->view->row_index = $row->index;
+          $field->advancedRender($row);
+        }
+      }
+
       // Event title.
       if (empty($options['title']) || $options['title'] == 'title') {
         $title = $fields['title']->advancedRender($row);
