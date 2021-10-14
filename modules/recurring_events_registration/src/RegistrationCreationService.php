@@ -673,7 +673,7 @@ class RegistrationCreationService {
         $first_waitlist->save();
 
         $key = 'promotion_notification';
-        $reg_type = $this->getRegistrationDatesType();
+        $reg_type = $this->getRegistrationType();
         $future_event = FALSE;
         switch ($reg_type) {
           case 'series':
