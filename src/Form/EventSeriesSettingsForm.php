@@ -112,7 +112,7 @@ class EventSeriesSettingsForm extends ConfigFormBase {
       '#type' => 'number',
       '#title' => $this->t('Event Series Time Intervals'),
       '#required' => TRUE,
-      '#description' => $this->t('Enter the interval, in minutes, to be used to separate event start times. Default is 15 minutes.'),
+      '#description' => $this->t('Enter the interval, in minutes, to be used to separate event start times. Default is 15 minutes. Set to 0 to allow users to enter any time.'),
       '#default_value' => $config->get('interval'),
     ];
 

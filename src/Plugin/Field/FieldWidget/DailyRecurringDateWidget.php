@@ -53,15 +53,29 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
     $element['end_value']['#date_date_element'] = 'date';
     $element['end_value']['#date_time_format'] = '';
     $element['end_value']['#date_time_element'] = 'none';
-
     $times = $this->getTimeOptions();
-    $element['time'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Event Start Time'),
-      '#options' => $times,
-      '#default_value' => $items[$delta]->time ?: '',
-      '#weight' => 3,
-    ];
+    if ($times) {
+      $element['time'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Event Start Time'),
+        '#options' => $times,
+        '#default_value' => $items[$delta]->time ?: '',
+        '#weight' => 3,
+      ];
+    } else {
+      $default_value = '';
+      if ($items[$delta]->time) {
+        $default_value = DrupalDateTime::createFromFormat('h:i A', strtoupper($items[$delta]->time));
+      }
+      $element['time'] = [
+        '#type' => 'datetime',
+        '#date_date_element' => 'none',
+        '#date_time_element' => 'time',
+        '#title' => $this->t('Event Start Time'),
+        '#default_value' => $default_value,
+        '#weight' => 3,
+      ];
+    }
 
     $durations = $this->getDurationOptions();
     $element['duration'] = [
@@ -80,6 +94,9 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
     foreach ($values as &$item) {
+      if (!empty($item['time']) && $item['time'] instanceof DrupalDateTime) {
+        $item['time'] = $item['time']->format('h:i A');
+      }
       if (empty($item['value'])) {
         $item['value'] = '';
       }

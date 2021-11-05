@@ -122,8 +122,8 @@ class ConsecutiveRecurringDate extends DateRangeItem implements RecurringEventsF
     $config = [];
     $config['start_date'] = $event->getConsecutiveStartDate();
     $config['end_date'] = $event->getConsecutiveEndDate();
-    $config['time'] = $event->getConsecutiveStartTime();
-    $config['end_time'] = $event->getConsecutiveEndTime();
+    $config['time'] = strtoupper($event->getConsecutiveStartTime());
+    $config['end_time'] = strtoupper($event->getConsecutiveEndTime());
     $config['duration'] = $event->getConsecutiveDuration();
     $config['duration_units'] = $event->getConsecutiveDurationUnits();
     $config['buffer'] = $event->getConsecutiveBuffer();
@@ -140,10 +140,21 @@ class ConsecutiveRecurringDate extends DateRangeItem implements RecurringEventsF
     $user_timezone = new \DateTimeZone(date_default_timezone_get());
     $user_input = $form_state->getUserInput();
 
+    $time = $user_input['consecutive_recurring_date'][0]['time'];
+    if (is_array($time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $time['time']);
+      $time = $temp->format('h:i A');
+    }
+
+    $end_time = $user_input['consecutive_recurring_date'][0]['end_time'];
+    if (is_array($end_time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $end_time['time']);
+      $end_time = $temp->format('h:i A');
+    }
+
     if (!empty($user_input['consecutive_recurring_date'][0]['value']['date'])
     && !empty($user_input['consecutive_recurring_date'][0]['end_value']['date'])
     && !empty($user_input['consecutive_recurring_date'][0]['time'])) {
-      $time = $user_input['consecutive_recurring_date'][0]['time'];
       $time_parts = static::convertTimeTo24hourFormat($time);
       $timestamp = implode(':', $time_parts);
       $start_timestamp = $user_input['consecutive_recurring_date'][0]['value']['date'] . 'T' . $timestamp;
@@ -157,8 +168,8 @@ class ConsecutiveRecurringDate extends DateRangeItem implements RecurringEventsF
       $config['start_date'] = $start_date;
       $config['end_date'] = $end_date;
 
-      $config['time'] = $time;
-      $config['end_time'] = $user_input['consecutive_recurring_date'][0]['end_time'];
+      $config['time'] = strtoupper($time);
+      $config['end_time'] = strtoupper($end_time);
       $config['duration'] = $user_input['consecutive_recurring_date'][0]['duration'];
       $config['duration_units'] = $user_input['consecutive_recurring_date'][0]['duration_units'];
       $config['buffer'] = $user_input['consecutive_recurring_date'][0]['buffer'];
@@ -187,14 +198,14 @@ class ConsecutiveRecurringDate extends DateRangeItem implements RecurringEventsF
         'override' => $form_config['end_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
       ];
     }
-    if (($entity_config['time'] ?? '') !== ($form_config['time'] ?? '')) {
+    if ((strtoupper($entity_config['time'] ?? '')) !== (strtoupper($form_config['time'] ?? ''))) {
       $diff['time'] = [
         'label' => t('Time'),
         'stored' => $entity_config['time'] ?? '',
         'override' => $form_config['time'] ?? '',
       ];
     }
-    if (($entity_config['end_time'] ?? '') !== ($form_config['end_time'] ?? '')) {
+    if ((strtoupper($entity_config['end_time'] ?? '')) !== (strtoupper($form_config['end_time'] ?? ''))) {
       $diff['end_time'] = [
         'label' => t('End Time'),
         'stored' => $entity_config['end_time'] ?? '',

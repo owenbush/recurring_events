@@ -118,7 +118,11 @@ class MonthlyRecurringDate extends WeeklyRecurringDate implements RecurringEvent
     $user_timezone = new \DateTimeZone(date_default_timezone_get());
     $user_input = $form_state->getUserInput();
 
-    $time = $user_input['monthly_recurring_date'][0]['time'];
+    $time = $user_input['daily_recurring_date'][0]['time'];
+    if (is_array($time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $time['time']);
+      $time = $temp->format('h:i A');
+    }
     $time_parts = static::convertTimeTo24hourFormat($time);
     $timestamp = implode(':', $time_parts);
 

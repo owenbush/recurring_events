@@ -80,7 +80,7 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
     $config = [];
     $config['start_date'] = $event->getDailyStartDate();
     $config['end_date'] = $event->getDailyEndDate();
-    $config['time'] = $event->getDailyStartTime();
+    $config['time'] = strtoupper($event->getDailyStartTime());
     $config['duration'] = $event->getDailyDuration();
     return $config;
   }
@@ -95,6 +95,10 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
     $user_input = $form_state->getUserInput();
 
     $time = $user_input['daily_recurring_date'][0]['time'];
+    if (is_array($time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $time['time']);
+      $time = $temp->format('h:i A');
+    }
     $time_parts = static::convertTimeTo24hourFormat($time);
     $timestamp = implode(':', $time_parts);
 
@@ -109,7 +113,7 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
     $config['start_date'] = $start_date;
     $config['end_date'] = $end_date;
 
-    $config['time'] = $time;
+    $config['time'] = strtoupper($time);
     $config['duration'] = $user_input['daily_recurring_date'][0]['duration'];
     return $config;
   }
@@ -134,7 +138,7 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
         'override' => $form_config['end_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
       ];
     }
-    if (($entity_config['time'] ?? '') !== ($form_config['time'] ?? '')) {
+    if ((strtoupper($entity_config['time'] ?? '')) !== (strtoupper($form_config['time'] ?? ''))) {
       $diff['time'] = [
         'label' => t('Time'),
         'stored' => $entity_config['time'] ?? '',

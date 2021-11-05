@@ -20,31 +20,34 @@ trait RecurringEventsFieldTrait {
     $times = [];
 
     $config = \Drupal::config('recurring_events.eventseries.config');
+
     // Take interval in minutes, and multiply it by 60 to convert to seconds.
     $interval = $config->get('interval') * 60;
-    $min_time = $config->get('min_time');
-    $max_time = $config->get('max_time');
-    $format = $config->get('time_format');
+    if ($interval) {
+      $min_time = $config->get('min_time');
+      $max_time = $config->get('max_time');
+      $format = $config->get('time_format');
 
-    $min_time = DrupalDateTime::createFromFormat('h:ia', $min_time);
-    $max_time = DrupalDateTime::createFromFormat('h:ia', $max_time);
+      $min_time = DrupalDateTime::createFromFormat('h:ia', $min_time);
+      $max_time = DrupalDateTime::createFromFormat('h:ia', $max_time);
 
-    // Convert the mininum time to a number of seconds after midnight.
-    $lower_hour = $min_time->format('H') * 60 * 60;
-    $lower_minute = $min_time->format('i') * 60;
-    $lower = $lower_hour + $lower_minute;
+      // Convert the mininum time to a number of seconds after midnight.
+      $lower_hour = $min_time->format('H') * 60 * 60;
+      $lower_minute = $min_time->format('i') * 60;
+      $lower = $lower_hour + $lower_minute;
 
-    // Convert the maximum time to a number of seconds after midnight.
-    $upper_hour = $max_time->format('H') * 60 * 60;
-    $upper_minute = $max_time->format('i') * 60;
-    $upper = $upper_hour + $upper_minute;
+      // Convert the maximum time to a number of seconds after midnight.
+      $upper_hour = $max_time->format('H') * 60 * 60;
+      $upper_minute = $max_time->format('i') * 60;
+      $upper = $upper_hour + $upper_minute;
 
-    $range = range($lower, $upper, $interval);
-    $utc_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
+      $range = range($lower, $upper, $interval);
+      $utc_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
 
-    foreach ($range as $time) {
-      $time_option = DrupalDateTime::createFromTimestamp($time, $utc_timezone);
-      $times[$time_option->format('h:i a', ['langcode' => 'en'])] = $time_option->format($format);
+      foreach ($range as $time) {
+        $time_option = DrupalDateTime::createFromTimestamp($time, $utc_timezone);
+        $times[$time_option->format('h:i a', ['langcode' => 'en'])] = $time_option->format($format);
+      }
     }
 
     \Drupal::moduleHandler()->alter('recurring_events_times', $times);

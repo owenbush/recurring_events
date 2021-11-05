@@ -84,6 +84,10 @@ class WeeklyRecurringDate extends DailyRecurringDate implements RecurringEventsF
     $user_input = $form_state->getUserInput();
 
     $time = $user_input['weekly_recurring_date'][0]['time'];
+    if (is_array($time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $time['time']);
+      $time = $temp->format('h:i A');
+    }
     $time_parts = static::convertTimeTo24hourFormat($time);
     $timestamp = implode(':', $time_parts);
 
