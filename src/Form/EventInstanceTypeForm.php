@@ -48,7 +48,7 @@ class EventInstanceTypeForm extends EntityForm {
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
-      '#maxlength' => 255,
+      '#maxlength' => 32,
       '#default_value' => $eventinstance_type->label(),
       '#description' => $this->t("Label for the Event instance type."),
       '#required' => TRUE,

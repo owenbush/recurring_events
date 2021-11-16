@@ -48,7 +48,7 @@ class RegistrantTypeForm extends EntityForm {
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
-      '#maxlength' => 255,
+      '#maxlength' => 32,
       '#default_value' => $registrant_type->label(),
       '#description' => $this->t("Label for the registrant type."),
       '#required' => TRUE,

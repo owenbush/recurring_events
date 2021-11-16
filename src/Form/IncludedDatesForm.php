@@ -50,7 +50,7 @@ class IncludedDatesForm extends EntityForm {
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
-      '#maxlength' => 255,
+      '#maxlength' => 32,
       '#default_value' => $included_dates->label(),
       '#description' => $this->t("Label for the Included dates."),
       '#required' => TRUE,
