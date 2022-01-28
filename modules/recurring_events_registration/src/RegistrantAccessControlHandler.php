@@ -73,13 +73,19 @@ class RegistrantAccessControlHandler extends EntityAccessControlHandler implemen
         if ($account->id() !== $entity->getOwnerId()) {
           return AccessResult::allowedIfHasPermission($account, 'edit registrant entities');
         }
-        return AccessResult::allowedIfHasPermission($account, 'edit own registrant entities');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'edit registrant entities',
+          'edit own registrant entities',
+        ], 'OR');
 
       case 'delete':
         if ($account->id() !== $entity->getOwnerId()) {
           return AccessResult::allowedIfHasPermission($account, 'delete registrant entities');
         }
-        return AccessResult::allowedIfHasPermission($account, 'delete own registrant entities');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'delete registrant entities',
+          'delete own registrant entities',
+        ], 'OR');
 
       case 'resend':
         return AccessResult::allowedIfHasPermission($account, 'resend registrant emails');

@@ -33,13 +33,19 @@ class EventInstanceAccessControlHandler extends EntityAccessControlHandler {
         if ($account->id() !== $entity->getOwnerId()) {
           return AccessResult::allowedIfHasPermission($account, 'edit eventinstance entity');
         }
-        return AccessResult::allowedIfHasPermission($account, 'edit own eventinstance entity');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'edit eventinstance entity',
+          'edit own eventinstance entity',
+        ], 'OR');
 
       case 'delete':
         if ($account->id() !== $entity->getOwnerId()) {
           return AccessResult::allowedIfHasPermission($account, 'delete eventinstance entity');
         }
-        return AccessResult::allowedIfHasPermission($account, 'delete own eventinstance entity');
+        return AccessResult::allowedIfHasPermissions($account, [
+          'delete eventinstance entity',
+          'delete own eventinstance entity',
+        ], 'OR');
 
       case 'clone':
         return AccessResult::allowedIfHasPermission($account, 'clone eventinstance entity');
