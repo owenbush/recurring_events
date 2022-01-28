@@ -171,7 +171,7 @@ events.admin.overview:
     _title: 'Events Management'
     _controller: '\Drupal\recurring_events\Controller\EventSeriesController::adminPage'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'administer eventseries entity+administer eventseries types+administer eventinstance entity+administer eventinstance types+administer registrant entity+administer registrant types'
 
 # Global admin content page.
 events.admin.content:
