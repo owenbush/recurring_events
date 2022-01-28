@@ -25,7 +25,7 @@ entity.eventseries.version_history:
   base_route: entity.eventseries.canonical
   title: 'Revisions'
   weight: 11
-  
+
 # Event Series clone link.
 eventseries.clone_form:
   route_name:  entity.eventseries.clone_form
@@ -38,6 +38,12 @@ entity.eventseries.collection:
   title: Event Series
   route_name: entity.eventseries.admin_collection
   base_route: system.admin_content
+
+# Event Series type edit link
+entity.eventseries_type.edit_form:
+  title: 'Edit'
+  route_name: entity.eventseries_type.edit_form
+  base_route: entity.eventseries_type.edit_form
 
 ### Event Instance local links.
 
@@ -79,6 +85,12 @@ entity.eventinstance.collection:
   title: Event Instances
   route_name: entity.eventinstance.admin_collection
   base_route: system.admin_content
+
+# Event Instance type edit link
+entity.eventinstance_type.edit_form:
+  title: 'Edit'
+  route_name: entity.eventinstance_type.edit_form
+  base_route: entity.eventinstance_type.edit_form
 
 ### Admin settings local links.
 

@@ -51,3 +51,9 @@ entity.registrant.collection:
   title: Registrations
   route_name: entity.registrant.admin_collection
   base_route: system.admin_content
+
+# Registrant type edit link
+entity.registrant_type.edit_form:
+  title: 'Edit'
+  route_name: entity.registrant_type.edit_form
+  base_route: entity.registrant_type.edit_form
