@@ -72,6 +72,9 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
 
     $times = $this->getTimeOptions();
     if ($times) {
+      $time_keys = array_keys($times);
+      $start_time = reset($time_keys);
+      $end_time = end($time_keys);
       $element['time'] = [
         '#type' => 'select',
         '#title' => $this->t('First Event Starts At'),
