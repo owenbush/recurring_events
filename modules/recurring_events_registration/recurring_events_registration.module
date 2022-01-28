@@ -11,6 +11,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\recurring_events\Entity\EventSeries;
 use Drupal\recurring_events\Entity\EventInstance;
 use Drupal\Core\Url;
@@ -317,6 +318,35 @@ function recurring_events_registration_entity_operation_alter(array &$operations
   if ($entity->getEntityTypeId() == 'registrant_type') {
     if (!empty($operations['delete'])) {
       unset($operations['delete']);
+    }
+  }
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function recurring_events_registration_menu_local_tasks_alter(&$data, $route_name, RefinableCacheableDependencyInterface $cacheability) {
+  // ISSUE:
+  // Devel routes do not use 'eventinstance' parameter which throws the below error.
+  // Some mandatory parameters are missing ("eventinstance") to generate a URL for
+  // route "entity.registrant.canonical"
+  //
+  // WORKAROUND:
+  // Make sure eventinstance parameter is set for all routes.
+  // Based on similar issue in webform_menu_local_tasks_alter in Webform module
+  if (strpos($route_name, 'entity.registrant.devel_') === 0 || $route_name === 'entity.registrant.token_devel') {
+    foreach ($data['tabs'] as $tab_level) {
+      foreach ($tab_level as $tab) {
+        /** @var Drupal\Core\Url $url */
+        $url = $tab['#link']['url'];
+        $tab_route_name = $url->getRouteName();
+        $tab_route_parameters = $url->getRouteParameters();
+
+        if (strpos($tab_route_name, 'entity.registrant.latest_version') !== 0) {
+          $registrant = \Drupal\recurring_events_registration\Entity\Registrant::load($tab_route_parameters['registrant']);
+          $url->setRouteParameter('eventinstance', $registrant->getEventInstance()->id());
+        }
+      }
     }
   }
 }
