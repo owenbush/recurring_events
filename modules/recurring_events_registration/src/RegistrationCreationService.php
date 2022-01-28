@@ -335,8 +335,8 @@ class RegistrationCreationService {
 
     $value = $this->eventSeries->event_registration->getValue();
     if (!empty($value)) {
-      $date_range['value'] = $value['value'];
-      $date_range['end_value'] = $value['end_value'];
+      $date_range['value'] = $value[array_key_first($value)]['value'];
+      $date_range['end_value'] = $value[array_key_first($value)]['end_value'];
     }
 
     return $date_range;
@@ -600,10 +600,14 @@ class RegistrationCreationService {
               $reg_date_range = $this->getRegistrationDateRange();
 
               if (!empty($reg_date_range)) {
-                $reg_start = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $reg_date_range['value'], $utc_timezone);
-                $reg_end = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $reg_date_range['end_value'], $utc_timezone);
-                $reg_start->setTimezone($timezone);
-                $reg_end->setTimezone($timezone);
+                if (!empty($reg_date_range['value'])) {
+                  $reg_start = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $reg_date_range['value'], $utc_timezone);
+                  $reg_start->setTimezone($timezone);
+                }
+                if (!empty($reg_date_range['end_value'])) {
+                  $reg_end = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $reg_date_range['end_value'], $utc_timezone);
+                  $reg_end->setTimezone($timezone);
+                }
               }
               break;
 
