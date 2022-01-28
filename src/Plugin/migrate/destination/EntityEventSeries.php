@@ -8,6 +8,7 @@ use Drupal\migrate\Plugin\migrate\destination\EntityContentBase;
 use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\migrate\Row;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\recurring_events\Entity\EventSeries;
 
 /**
  * The 'entity:eventseries' destination plugin for Recurring Events.
@@ -32,7 +33,12 @@ class EntityEventSeries extends EntityContentBase {
 
   const DATETIME_FORMAT = 'Y-m-d\TH:i:s';
 
-  const SECONDS_IN_DAY = 60 * 60 * 24;
+  /**
+   * Default event duration (in seconds).
+   *
+   * Used for events that have no end date in the source event.
+   */
+  const DEFAULT_DURATION = 60 * 60;
 
   const DAYS_OF_WEEK_TR = [
     'MO' => 'monday',
@@ -67,6 +73,7 @@ class EntityEventSeries extends EntityContentBase {
   public function import(Row $row, array $old_destination_id_values = []) {
     $source_date_field = $this->configuration['source_date_field'];
     $source_timezone = new \DateTimeZone($this->configuration['source_timezone']);
+    date_default_timezone_set($this->configuration['source_timezone']);
     $source = $row->getSourceProperty($source_date_field);
     $this->setRecurringDateValues($source, $source_timezone, $row);
     return parent::import($row, $old_destination_id_values);
@@ -92,13 +99,19 @@ class EntityEventSeries extends EntityContentBase {
     $first = $source[0];
     $last = $source[$num_dates - 1];
 
+    // Get values for the first event in the series.
     $start_event = new DrupalDateTime($first['value'], DateTimeItemInterface::STORAGE_TIMEZONE);
     $start_event->setTimezone($source_timezone);
-    $end_event = new DrupalDateTime($first['value2'], DateTimeItemInterface::STORAGE_TIMEZONE);
+    $end_key = (!empty($first['value2'])) ? 'value2' : 'value';
+    $end_event = new DrupalDateTime($first[$end_key], DateTimeItemInterface::STORAGE_TIMEZONE);
     $end_event->setTimezone($source_timezone);
-    $duration = $end_event->getTimestamp() - $start_event->getTimestamp();
+    if (!$duration = $end_event->getTimestamp() - $start_event->getTimestamp()) {
+      $duration = self::DEFAULT_DURATION;
+      $end_event->add(new \DateInterval('PT' . $duration . 'S'));
+    }
 
-    $end_series = new DrupalDateTime($last['value2'], DateTimeItemInterface::STORAGE_TIMEZONE);
+    // Get values for the last event in the series (so we know when to end it).
+    $end_series = new DrupalDateTime($last['value'], DateTimeItemInterface::STORAGE_TIMEZONE);
     $end_series->setTimezone($source_timezone);
     $rule_in = $first['rrule'] ?? NULL;
 
@@ -114,12 +127,9 @@ class EntityEventSeries extends EntityContentBase {
 
       case 'WEEKLY':
         $recur_type = 'weekly_recurring_date';
-        if (!empty($rrule['COUNT']) && empty($rrule['UNTIL'])) {
-          $rrule['UNTIL'] = $start_event->getTimestamp() + self::SECONDS_IN_DAY * 7 * $rrule['COUNT'];
-        }
         $options = [
           'value' => $start_event->format(self::DATETIME_FORMAT),
-          'end_value' => $rrule['UNTIL'] ?? $end_series->format(self::DATETIME_FORMAT),
+          'end_value' => $end_series->format(self::DATETIME_FORMAT),
           'time' => $start_event->format('h:i a'),
           'duration' => $duration,
           'days' => $rrule['BYDAY']['days'] ?? strtolower($start_event->format('l')),
@@ -130,7 +140,7 @@ class EntityEventSeries extends EntityContentBase {
         $recur_type = 'monthly_recurring_date';
         $options = [
           'value' => $start_event->format(self::DATETIME_FORMAT),
-          'end_value' => $rrule['UNTIL'] ?? $end_series->format(self::DATETIME_FORMAT),
+          'end_value' => $end_series->format(self::DATETIME_FORMAT),
           'time' => $start_event->format('h:i a'),
           'duration' => $duration,
           'days' => $rrule['BYDAY']['days'] ?? strtolower($start_event->format('l')),
@@ -303,6 +313,27 @@ class EntityEventSeries extends EntityContentBase {
    */
   private function formatByDay($value) {
     return strtr($value, self::BYDAY_TR);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function rollback(array $destination_identifier) {
+    $entity = $this->storage->load(reset($destination_identifier));
+    if ($entity && $entity instanceof EventSeries) {
+      $instances = $entity->event_instances->referencedEntities();
+      // Allow other modules to react prior to deleting all instances after a
+      // date configuration change.
+      \Drupal::moduleHandler()->invokeAll('recurring_events_pre_delete_instances', [$entity]);
+      // Loop through all instances and remove them.
+      foreach ($instances as $instance) {
+        $instance->delete();
+      }
+      // Allow other modules to react after deleting all instances after a date
+      // configuration change.
+      \Drupal::moduleHandler()->invokeAll('recurring_events_post_delete_instances', [$entity]);
+    }
+    parent::rollback($destination_identifier);
   }
 
 }
