@@ -73,14 +73,14 @@ class ExcludedDates extends ConfigEntityBase implements ExcludedDatesInterface {
    * {@inheritdoc}
    */
   public function start() {
-    return isset($this->start) ? $this->start : NULL;
+    return $this->start ?? NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function end() {
-    return isset($this->end) ? $this->end : NULL;
+    return $this->end ?? NULL;
   }
 
   /**

@@ -19,6 +19,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\recurring_events_registration\Entity\RegistrantInterface;
 use Drupal\recurring_events_registration\Form\RegistrantForm;
+use Drupal\recurring_events_registration\Entity\Registrant;
 
 /**
  * Implements hook_help().
@@ -327,13 +328,13 @@ function recurring_events_registration_entity_operation_alter(array &$operations
  */
 function recurring_events_registration_menu_local_tasks_alter(&$data, $route_name, RefinableCacheableDependencyInterface $cacheability) {
   // ISSUE:
-  // Devel routes do not use 'eventinstance' parameter which throws the below error.
-  // Some mandatory parameters are missing ("eventinstance") to generate a URL for
-  // route "entity.registrant.canonical"
+  // Devel routes do not use 'eventinstance' parameter which throws the below
+  // error. Some mandatory parameters are missing ("eventinstance") to generate
+  // a URL for route "entity.registrant.canonical".
   //
-  // WORKAROUND:
+  // WORKAROUND.
   // Make sure eventinstance parameter is set for all routes.
-  // Based on similar issue in webform_menu_local_tasks_alter in Webform module
+  // Based on similar issue in webform_menu_local_tasks_alter in Webform module.
   if (strpos($route_name, 'entity.registrant.devel_') === 0 || $route_name === 'entity.registrant.token_devel') {
     foreach ($data['tabs'] as $tab_level) {
       foreach ($tab_level as $tab) {
@@ -343,7 +344,7 @@ function recurring_events_registration_menu_local_tasks_alter(&$data, $route_nam
         $tab_route_parameters = $url->getRouteParameters();
 
         if (strpos($tab_route_name, 'entity.registrant.latest_version') !== 0) {
-          $registrant = \Drupal\recurring_events_registration\Entity\Registrant::load($tab_route_parameters['registrant']);
+          $registrant = Registrant::load($tab_route_parameters['registrant']);
           $url->setRouteParameter('eventinstance', $registrant->getEventInstance()->id());
         }
       }

@@ -452,7 +452,6 @@ function recurring_events_update_8010() {
   }
 }
 
-
 /**
  * Add end time option, rather than just duration, to creating event series.
  */

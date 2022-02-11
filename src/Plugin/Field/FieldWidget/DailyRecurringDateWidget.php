@@ -167,7 +167,7 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
           $item['end_time'] = $item['end_time']['time']->format('h:i A');
         }
         else {
-           $item['end_time'] = $item['end_time']['time'];
+          $item['end_time'] = $item['end_time']['time'];
         }
       }
       if (empty($item['duration_or_end_time'])) {
