@@ -13,7 +13,10 @@ use Drupal\Core\Entity\EntityInterface;
  * Implements hook_entity_base_field_info_alter().
  */
 function recurring_events_reminders_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
-  if ($entity_type->id() === 'eventseries') {
+
+  $entity_type_id = $entity_type->id();
+
+  if ($entity_type_id === 'eventseries') {
     $fields['registration_reminders'] = BaseFieldDefinition::create('registration_reminders')
       ->setName('registration_reminders')
       ->setLabel(t('Event Registration Reminders'))
@@ -30,7 +33,8 @@ function recurring_events_reminders_entity_base_field_info_alter(&$fields, Entit
         'weight' => 10,
       ]);
   }
-  if ($entity_type->id() === 'eventinstance') {
+
+  if ($entity_type_id === 'eventinstance') {
     $fields['reminder_date'] = BaseFieldDefinition::create('timestamp')
       ->setName('reminder_date')
       ->setLabel(t('Reminder Date'))
@@ -39,6 +43,7 @@ function recurring_events_reminders_entity_base_field_info_alter(&$fields, Entit
       ->setDisplayConfigurable('view', FALSE)
       ->setRevisionable(FALSE)
       ->setTranslatable(FALSE)
+      ->setTargetEntityTypeId($entity_type_id)
       ->setCardinality(1)
       ->setRequired(FALSE);
 
@@ -50,6 +55,7 @@ function recurring_events_reminders_entity_base_field_info_alter(&$fields, Entit
       ->setDisplayConfigurable('view', FALSE)
       ->setRevisionable(FALSE)
       ->setTranslatable(FALSE)
+      ->setTargetEntityTypeId($entity_type_id)
       ->setCardinality(1)
       ->setRequired(FALSE);
   }
