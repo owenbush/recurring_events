@@ -91,6 +91,7 @@ php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" upd
 echo "==> Install other dev dependencies."
 cat <<< "$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "${BUILD_DIR}/composer.json")" > "${BUILD_DIR}/composer.json"
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev dealerdirect/phpcodesniffer-composer-installer
+php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev phpspec/prophecy-phpunit:^2
 
 echo "==> Start inbuilt PHP server at http://${WEBSERVER_HOST}:${WEBSERVER_PORT} in $(pwd)/${BUILD_DIR}/web."
 killall -9 php > /dev/null 2>&1 || true
