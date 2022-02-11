@@ -94,6 +94,13 @@ class MonthlyRecurringDateWidget extends WeeklyRecurringDateWidget {
       '#weight' => 8,
     ];
 
+    unset($element['end_time']['#states']);
+    unset($element['end_time']['time']['#states']);
+    unset($element['duration']['#states']);
+    $element['end_time']['#states']['invisible'][':input[name="monthly_recurring_date[0][duration_or_end_time]"]'] = ['value' => 'duration'];
+    $element['end_time']['time']['#states']['invisible'][':input[name="monthly_recurring_date[0][duration_or_end_time]"]'] = ['value' => 'duration'];
+    $element['duration']['#states']['visible'][':input[name="monthly_recurring_date[0][duration_or_end_time]"]'] = ['value' => 'duration'];
+
     return $element;
   }
 
@@ -101,8 +108,6 @@ class MonthlyRecurringDateWidget extends WeeklyRecurringDateWidget {
    * {@inheritdoc}
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
-    $values = parent::massageFormValues($values, $form, $form_state);
-
     foreach ($values as &$item) {
 
       $item['day_occurrence'] = array_filter($item['day_occurrence']);
@@ -121,6 +126,8 @@ class MonthlyRecurringDateWidget extends WeeklyRecurringDateWidget {
         $item['day_of_month'] = '';
       }
     }
+
+    $values = parent::massageFormValues($values, $form, $form_state);
     return $values;
   }
 

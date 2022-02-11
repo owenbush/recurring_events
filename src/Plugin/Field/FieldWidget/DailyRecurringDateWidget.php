@@ -59,10 +59,30 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
         '#type' => 'select',
         '#title' => $this->t('Event Start Time'),
         '#options' => $times,
-        '#default_value' => $items[$delta]->time ?: '',
+        '#default_value' => strtolower($items[$delta]->time ?: ''),
         '#weight' => 3,
       ];
-    } else {
+
+      $element['end_time'] = [
+        // @todo Remove the container and apply #states and #weight directly to
+        // the element when https://www.drupal.org/project/drupal/issues/2419131
+        // lands.
+        '#type' => 'container',
+        '#states' => [
+          'invisible' => [
+            ':input[name="daily_recurring_date[0][duration_or_end_time]"]' => ['value' => 'duration'],
+          ],
+        ],
+        '#weight' => 4,
+        'time' => [
+          '#type' => 'select',
+          '#title' => $this->t('Event End Time'),
+          '#options' => $times,
+          '#default_value' => strtolower($items[$delta]->end_time ?: ''),
+        ],
+      ];
+    }
+    else {
       $default_value = '';
       if ($items[$delta]->time) {
         $default_value = DrupalDateTime::createFromFormat('h:i A', strtoupper($items[$delta]->time));
@@ -75,6 +95,36 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
         '#default_value' => $default_value,
         '#weight' => 3,
       ];
+
+      $end_default_value = '';
+      if ($items[$delta]->end_time) {
+        $end_default_value = DrupalDateTime::createFromFormat('h:i A', strtoupper($items[$delta]->end_time));
+      }
+
+      $element['end_time'] = [
+        // @todo Remove the container and apply #states and #weight directly to
+        // the element when https://www.drupal.org/project/drupal/issues/2419131
+        // lands.
+        '#type' => 'container',
+        '#weight' => 5,
+        '#states' => [
+          'invisible' => [
+            ':input[name="daily_recurring_date[0][duration_or_end_time]"]' => ['value' => 'duration'],
+          ],
+        ],
+        'time' => [
+          '#type' => 'datetime',
+          '#date_date_element' => 'none',
+          '#date_time_element' => 'time',
+          '#title' => $this->t('Event End Time'),
+          '#default_value' => $end_default_value,
+          '#states' => [
+            'invisible' => [
+              ':input[name="daily_recurring_date[0][duration_or_end_time]"]' => ['value' => 'duration'],
+            ],
+          ],
+        ],
+      ];
     }
 
     $durations = $this->getDurationOptions();
@@ -83,7 +133,22 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
       '#title' => $this->t('Event Duration'),
       '#options' => $durations,
       '#default_value' => $items[$delta]->duration ?: '',
-      '#weight' => 4,
+      '#weight' => 5,
+      '#states' => [
+        'visible' => [
+          ':input[name="daily_recurring_date[0][duration_or_end_time]"]' => ['value' => 'duration'],
+        ],
+      ],
+    ];
+
+    $element['duration_or_end_time'] = [
+      '#type' => 'radios',
+      '#default_value' => $items[$delta]->duration_or_end_time ?: 'duration',
+      '#weight' => 3,
+      '#options' => [
+        'duration' => $this->t('Set Duration'),
+        'end_time' => $this->t('Set End Time'),
+      ],
     ];
 
     return $element;
@@ -96,6 +161,17 @@ class DailyRecurringDateWidget extends DateRangeDefaultWidget {
     foreach ($values as &$item) {
       if (!empty($item['time']) && $item['time'] instanceof DrupalDateTime) {
         $item['time'] = $item['time']->format('h:i A');
+      }
+      if (!empty($item['end_time']['time'])) {
+        if ($item['end_time']['time'] instanceof DrupalDateTime) {
+          $item['end_time'] = $item['end_time']['time']->format('h:i A');
+        }
+        else {
+           $item['end_time'] = $item['end_time']['time'];
+        }
+      }
+      if (empty($item['duration_or_end_time'])) {
+        $item['duration_or_end_time'] = 'duration';
       }
       if (empty($item['value'])) {
         $item['value'] = '';

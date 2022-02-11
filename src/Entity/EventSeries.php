@@ -731,6 +731,26 @@ class EventSeries extends EditorialContentEntityBase implements EventInterface {
   }
 
   /**
+   * Get daily recurring end time.
+   *
+   * @return string
+   *   The string for the daily end time.
+   */
+  public function getDailyEndTime() {
+    return $this->get('daily_recurring_date')->end_time;
+  }
+
+  /**
+   * Get daily recurring duration or end time.
+   *
+   * @return string
+   *   The string for the daily duration or end time.
+   */
+  public function getDailyDurationOrEndTime() {
+    return $this->get('daily_recurring_date')->duration_or_end_time;
+  }
+
+  /**
    * Get weekly recurring start date.
    *
    * @return Drupal\Core\Datetime\DrupalDateTime
@@ -776,6 +796,26 @@ class EventSeries extends EditorialContentEntityBase implements EventInterface {
    */
   public function getWeeklyDuration() {
     return $this->get('weekly_recurring_date')->duration;
+  }
+
+  /**
+   * Get weekly recurring end time.
+   *
+   * @return string
+   *   The string for the weekly end time.
+   */
+  public function getWeeklyEndTime() {
+    return $this->get('weekly_recurring_date')->end_time;
+  }
+
+  /**
+   * Get weekly recurring duration or end time.
+   *
+   * @return string
+   *   The string for the weekly duration or end time.
+   */
+  public function getWeeklyDurationOrEndTime() {
+    return $this->get('weekly_recurring_date')->duration_or_end_time;
   }
 
   /**
@@ -872,6 +912,26 @@ class EventSeries extends EditorialContentEntityBase implements EventInterface {
    */
   public function getMonthlyDuration() {
     return $this->get('monthly_recurring_date')->duration;
+  }
+
+  /**
+   * Get monthly recurring end time.
+   *
+   * @return string
+   *   The string for the monthly end time.
+   */
+  public function getMonthlyEndTime() {
+    return $this->get('monthly_recurring_date')->end_time;
+  }
+
+  /**
+   * Get monthly recurring duration or end time.
+   *
+   * @return string
+   *   The string for the monthly duration or end time.
+   */
+  public function getMonthlyDurationOrEndTime() {
+    return $this->get('monthly_recurring_date')->duration_or_end_time;
   }
 
   /**

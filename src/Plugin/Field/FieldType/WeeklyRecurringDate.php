@@ -70,6 +70,8 @@ class WeeklyRecurringDate extends DailyRecurringDate implements RecurringEventsF
     $config['end_date'] = $event->getWeeklyEndDate();
     $config['time'] = $event->getWeeklyStartTime();
     $config['duration'] = $event->getWeeklyDuration();
+    $config['end_time'] = $event->getWeeklyEndTime();
+    $config['duration_or_end_time'] = $event->getWeeklyDurationOrEndTime();
     $config['days'] = $event->getWeeklyDays();
     return $config;
   }
@@ -95,15 +97,25 @@ class WeeklyRecurringDate extends DailyRecurringDate implements RecurringEventsF
     $start_date = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $start_timestamp, $user_timezone);
     $start_date->setTime(0, 0, 0);
 
-    $end_timestamp = $user_input['weekly_recurring_date'][0]['end_value']['date'] . 'T' . $timestamp;
+    $end_time = $user_input['weekly_recurring_date'][0]['end_time']['time'];
+    if (is_array($end_time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $end_time['time']);
+      $end_time = $temp->format('h:i A');
+    }
+    $end_time_parts = static::convertTimeTo24hourFormat($end_time);
+    $end_timestamp = implode(':', $end_time_parts);
+
+    $end_timestamp = $user_input['weekly_recurring_date'][0]['end_value']['date'] . 'T' . $end_timestamp;
     $end_date = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $end_timestamp, $user_timezone);
     $end_date->setTime(0, 0, 0);
 
     $config['start_date'] = $start_date;
     $config['end_date'] = $end_date;
 
-    $config['time'] = $time;
+    $config['time'] = strtoupper($time);
+    $config['end_time'] = strtoupper($end_time);
     $config['duration'] = $user_input['weekly_recurring_date'][0]['duration'];
+    $config['duration_or_end_time'] = $user_input['weekly_recurring_date'][0]['duration_or_end_time'];
     $config['days'] = array_filter(array_values($user_input['weekly_recurring_date'][0]['days']));
     return $config;
   }
@@ -112,37 +124,7 @@ class WeeklyRecurringDate extends DailyRecurringDate implements RecurringEventsF
    * {@inheritdoc}
    */
   public static function buildDiffArray(array $entity_config, array $form_config) {
-    $diff = [];
-
-    if ($entity_config['start_date']->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT) !== $form_config['start_date']->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT)) {
-      $diff['start_date'] = [
-        'label' => t('Start Date'),
-        'stored' => $entity_config['start_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
-        'override' => $form_config['start_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
-      ];
-    }
-    if ($entity_config['end_date']->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT) !== $form_config['end_date']->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT)) {
-      $diff['end_date'] = [
-        'label' => t('End Date'),
-        'stored' => $entity_config['end_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
-        'override' => $form_config['end_date']->format(DateTimeItemInterface::DATE_STORAGE_FORMAT),
-      ];
-    }
-    if (($entity_config['time'] ?? '') !== ($form_config['time'] ?? '')) {
-      $diff['time'] = [
-        'label' => t('Time'),
-        'stored' => $entity_config['time'] ?? '',
-        'override' => $form_config['time'] ?? '',
-      ];
-    }
-    if (($entity_config['duration'] ?? '') !== ($form_config['duration'] ?? '')) {
-      $diff['duration'] = [
-        'label' => t('Duration'),
-        'stored' => $entity_config['duration'] ?? '',
-        'override' => $form_config['duration'] ?? '',
-      ];
-    }
-
+    $diff = parent::buildDiffArray($entity_config, $form_config);
     if (($entity_config['days'] ?? []) !== ($form_config['days'] ?? [])) {
       $diff['days'] = [
         'label' => t('Days'),
@@ -177,8 +159,22 @@ class WeeklyRecurringDate extends DailyRecurringDate implements RecurringEventsF
         $weekly_date->setTimezone($utc_timezone);
         // Create a clone of this date.
         $weekly_date_end = clone $weekly_date;
-        // Add the number of seconds specified in the duration field.
-        $weekly_date_end->modify('+' . $form_data['duration'] . ' seconds');
+        // Check whether we are using a duration or end time.
+        $duration_or_end_time = $form_data['duration_or_end_time'];
+        switch ($duration_or_end_time) {
+          case 'duration':
+            // Add the number of seconds specified in the duration field.
+            $weekly_date_end->modify('+' . $form_data['duration'] . ' seconds');
+            break;
+
+          case 'end_time':
+            // Set the time to be the end time.
+            $end_time_parts = static::convertTimeTo24hourFormat($form_data['end_time']);
+            if (!empty($end_time_parts)) {
+              $weekly_date_end->setTime($end_time_parts[0], $end_time_parts[1]);
+            }
+            break;
+        }
         // Set this event to be created.
         $events_to_create[$weekly_date->format('r')] = [
           'start_date' => $weekly_date,

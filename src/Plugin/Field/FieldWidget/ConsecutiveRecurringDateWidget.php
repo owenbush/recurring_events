@@ -79,7 +79,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
         '#type' => 'select',
         '#title' => $this->t('First Event Starts At'),
         '#options' => $times,
-        '#default_value' => $items[$delta]->time ?: $start_time,
+        '#default_value' => $items[$delta]->time ?? reset($times),
         '#weight' => 3,
         '#ajax' => [
           'callback' => [$this, 'changeDuration'],
@@ -92,7 +92,7 @@ class ConsecutiveRecurringDateWidget extends DateRangeDefaultWidget {
         '#type' => 'select',
         '#title' => $this->t('Final Event Starts At'),
         '#options' => $times,
-        '#default_value' => $items[$delta]->end_time ?: $end_time,
+        '#default_value' => $items[$delta]->end_time ?? end($times),
         '#weight' => 4,
         '#ajax' => [
           'callback' => [$this, 'changeDuration'],

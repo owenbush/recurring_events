@@ -45,6 +45,13 @@ class WeeklyRecurringDateWidget extends DailyRecurringDateWidget {
       '#weight' => 5,
     ];
 
+    unset($element['end_time']['#states']);
+    unset($element['end_time']['time']['#states']);
+    unset($element['duration']['#states']);
+    $element['end_time']['#states']['invisible'][':input[name="weekly_recurring_date[0][duration_or_end_time]"]'] = ['value' => 'duration'];
+    $element['end_time']['time']['#states']['invisible'][':input[name="weekly_recurring_date[0][duration_or_end_time]"]'] = ['value' => 'duration'];
+    $element['duration']['#states']['visible'][':input[name="weekly_recurring_date[0][duration_or_end_time]"]'] = ['value' => 'duration'];
+
     return $element;
   }
 

@@ -451,3 +451,111 @@ function recurring_events_update_8010() {
     $active_storage->write($config, $source->read($config));
   }
 }
+
+
+/**
+ * Add end time option, rather than just duration, to creating event series.
+ */
+function recurring_events_update_8011() {
+  $fields_to_create = [
+    'daily_recurring_date' => [
+      'label' => t('Daily Event'),
+      'description' => 'The daily recurring date configuration.',
+      'weight' => 4,
+    ],
+    'weekly_recurring_date' => [
+      'label' => t('Weekly Event'),
+      'description' => 'The weekly recurring date configuration.',
+      'weight' => 5,
+    ],
+    'monthly_recurring_date' => [
+      'label' => t('Monthly Event'),
+      'description' => 'The monthly recurring date configuration.',
+      'weight' => 6,
+    ],
+  ];
+
+  $entity_type_manager = \Drupal::entityTypeManager();
+
+  $storage = $entity_type_manager->getStorage('eventseries');
+  $bundle_definition = $entity_type_manager->getDefinition('eventseries');
+
+  $id_key = $bundle_definition->getKey('id');
+  $revision_key = $bundle_definition->getKey('revision');
+
+  $table_name = $storage->getDataTable() ?: $storage->getBaseTable();
+  $revision_table_name = $storage->getRevisionDataTable() ?: $storage->getRevisionTable();
+
+  $database = \Drupal::database();
+  $definition_manager = \Drupal::entityDefinitionUpdateManager();
+
+  $basefield_definitions = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('eventseries');
+
+  foreach ($fields_to_create as $machine_name => $config) {
+    $field_fields = [];
+    $schema = $basefield_definitions[$machine_name]->getSchema();
+    foreach ($schema['columns'] as $column_name => $column_config) {
+      if (!in_array($column_name, ['end_time', 'duration_or_end_time'])) {
+        $field_fields[] = $machine_name . '__' . $column_name;
+      }
+    }
+
+    $database_values = $database->select($table_name)
+      ->fields($table_name, array_merge([$id_key, $revision_key], $field_fields))
+      ->execute()
+      ->fetchAll();
+
+    $update_fields = array_fill_keys($field_fields, NULL);
+    $database->update($table_name)
+      ->fields($update_fields)
+      ->execute();
+
+    // Remove the existing daily/monthly/weekly recurring date field.
+    $field_storage_definition = $definition_manager->getFieldStorageDefinition($machine_name, 'eventseries');
+    $definition_manager->uninstallFieldStorageDefinition($field_storage_definition);
+
+    // Create a new instance of the field.
+    $storage_definition = BaseFieldDefinition::create($machine_name)
+      ->setName($machine_name)
+      ->setLabel($config['label'])
+      ->setDescription($config['label'])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE)
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setCardinality(1)
+      ->setRequired(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => $machine_name,
+        'weight' => $config['weight'],
+      ]);
+
+    \Drupal::entityDefinitionUpdateManager()
+      ->installFieldStorageDefinition($machine_name, 'eventseries', 'eventseries', $storage_definition);
+
+    // Restore previously stored values.
+    if (!empty($database_values)) {
+      foreach ($database_values as $value) {
+        $values_to_restore = [
+          $id_key => $value->{$id_key},
+          $revision_key => $value->{$revision_key},
+        ];
+        foreach ($field_fields as $field) {
+          $values_to_restore[$field] = rtrim($value->{$field}, 's');
+        }
+        $values_to_restore[$machine_name . '__end_time'] = NULL;
+        $values_to_restore[$machine_name . '__duration_or_end_time'] = 'duration';
+        $database->update($table_name)
+          ->fields($values_to_restore)
+          ->condition($id_key, $value->{$id_key})
+          ->execute();
+
+        $database->update($revision_table_name)
+          ->fields($values_to_restore)
+          ->condition($id_key, $value->{$id_key})
+          ->condition($revision_key, $value->{$revision_key})
+          ->execute();
+      }
+    }
+  }
+}

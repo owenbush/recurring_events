@@ -43,6 +43,16 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
       'unsigned' => TRUE,
     ];
 
+    $schema['columns']['end_time'] = [
+      'type' => 'varchar',
+      'length' => 20,
+    ];
+
+    $schema['columns']['duration_or_end_time'] = [
+      'type' => 'varchar',
+      'length' => 255,
+    ];
+
     return $schema;
   }
 
@@ -52,7 +62,10 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
   public function isEmpty() {
     $time = $this->get('time')->getValue();
     $duration = $this->get('duration')->getValue();
-    return parent::isEmpty() && empty($time) && empty($duration);
+    $end_time = $this->get('time')->getValue();
+    $duration_or_end_time = $this->get('duration_or_end_time')->getValue();
+    return parent::isEmpty() && empty($time) && empty($duration)
+      && empty($end_time) && empty($duration_or_end_time);
   }
 
   /**
@@ -70,6 +83,14 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
       ->setLabel(t('Duration'))
       ->setDescription(t('The duration of the event in minutes'));
 
+    $properties['end_time'] = DataDefinition::create('string')
+      ->setLabel(t('End Time'))
+      ->setDescription(t('The time the event ends'));
+
+    $properties['duration_or_end_time'] = DataDefinition::create('string')
+      ->setLabel(t('Duration or End Time'))
+      ->setDescription(t('Select whether to specify a duration or end time.'));
+
     return $properties;
   }
 
@@ -82,6 +103,8 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
     $config['end_date'] = $event->getDailyEndDate();
     $config['time'] = strtoupper($event->getDailyStartTime());
     $config['duration'] = $event->getDailyDuration();
+    $config['end_time'] = $event->getDailyEndTime();
+    $config['duration_or_end_time'] = $event->getDailyDurationOrEndTime();
     return $config;
   }
 
@@ -106,7 +129,15 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
     $start_date = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $start_timestamp, $user_timezone);
     $start_date->setTime(0, 0, 0);
 
-    $end_timestamp = $user_input['daily_recurring_date'][0]['end_value']['date'] . 'T' . $timestamp;
+    $end_time = $user_input['daily_recurring_date'][0]['end_time']['time'];
+    if (is_array($end_time)) {
+      $temp = DrupalDateTime::createFromFormat('H:i:s', $end_time['time']);
+      $end_time = $temp->format('h:i A');
+    }
+    $end_time_parts = static::convertTimeTo24hourFormat($end_time);
+    $end_timestamp = implode(':', $end_time_parts);
+
+    $end_timestamp = $user_input['daily_recurring_date'][0]['end_value']['date'] . 'T' . $end_timestamp;
     $end_date = DrupalDateTime::createFromFormat(DateTimeItemInterface::DATETIME_STORAGE_FORMAT, $end_timestamp, $user_timezone);
     $end_date->setTime(0, 0, 0);
 
@@ -114,7 +145,10 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
     $config['end_date'] = $end_date;
 
     $config['time'] = strtoupper($time);
+    $config['end_time'] = strtoupper($end_time);
+    $config['duration_or_end_time'] = $user_input['daily_recurring_date'][0]['duration_or_end_time'];
     $config['duration'] = $user_input['daily_recurring_date'][0]['duration'];
+
     return $config;
   }
 
@@ -152,6 +186,20 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
         'override' => $form_config['duration'] ?? '',
       ];
     }
+    if ((strtoupper($entity_config['end_time'] ?? '')) !== (strtoupper($form_config['end_time'] ?? ''))) {
+      $diff['end_time'] = [
+        'label' => t('End Time'),
+        'stored' => $entity_config['end_time'] ?? '',
+        'override' => $form_config['end_time'] ?? '',
+      ];
+    }
+    if (($entity_config['duration_or_end_time'] ?? '') !== ($form_config['duration_or_end_time'] ?? '')) {
+      $diff['duration_or_end_time'] = [
+        'label' => t('Duration or End Time'),
+        'stored' => $entity_config['duration_or_end_time'] ?? '',
+        'override' => $form_config['duration_or_end_time'] ?? '',
+      ];
+    }
 
     return $diff;
   }
@@ -174,8 +222,23 @@ class DailyRecurringDate extends DateRangeItem implements RecurringEventsFieldTy
         $daily_date->setTimezone($utc_timezone);
         // Create a clone of this date.
         $daily_date_end = clone $daily_date;
-        // Add the number of seconds specified in the duration field.
-        $daily_date_end->modify('+' . $form_data['duration'] . ' seconds');
+        // Check whether we are using a duration or end time.
+        $duration_or_end_time = $form_data['duration_or_end_time'];
+        switch ($duration_or_end_time) {
+          case 'duration':
+            // Add the number of seconds specified in the duration field.
+            $daily_date_end->modify('+' . $form_data['duration'] . ' seconds');
+            break;
+
+          case 'end_time':
+            // Set the time to be the end time.
+            $end_time_parts = static::convertTimeTo24hourFormat($form_data['end_time']);
+            if (!empty($end_time_parts)) {
+              $daily_date_end->setTime($end_time_parts[0], $end_time_parts[1]);
+            }
+            break;
+        }
+
         // Set this event to be created.
         $events_to_create[$daily_date->format('r')] = [
           'start_date' => $daily_date,
